@@ -1,0 +1,47 @@
+# The places we deliberately do NOT scrape - anti-bot, no API, or terms that
+# don't allow it. Surfaced in the app's Hunt tab as one-click link-outs instead.
+
+instagram:
+  - { handle: doblevintagewatches, name: Doble Vintage Watches, note: "The gold standard. Stone dials, bamboo, cobra, feather." }
+  - { handle: dadandson.watches, name: Dad & Son, note: "Hong Kong. Gallery site with no online store - Instagram is the shop." }
+  - { handle: cyclopewatches, name: Cyclope, note: "Paris. Rare vintage, no open feed - IG is the shop." }
+  - { handle: wristandwatchco, name: Wrist and Watch Co, note: "Rare collector pieces." }
+  - { handle: goldammervintage, name: Goldammer, note: "Also crawled - IG gets the drops first." }
+  - { handle: analogshift, name: Analog Shift }
+  - { handle: craftandtailored, name: Craft & Tailored }
+  - { handle: anordain, name: anOrdain, note: "Grand feu enamel." }
+  - { handle: theo_and_harris, name: Theo & Harris }
+  - { handle: vintage_watches_milano, name: Vintage Watches Milano }
+  - { handle: c4c_vintage_watches, name: C4C Vintage Watches }
+
+auctions:
+  - { name: Grey Market, url: "https://grymrkt.co/", note: "Vintage & neo-vintage auctions. No feed - check manually." }
+  - { name: Grays Antiques, url: "https://www.graysantiques.com/jewellery/watches-timepieces", note: "Mayfair, 100 dealers. Physical-first." }
+
+# Chrono24 deep links. Chrono24 has no public API and blocks crawlers, so these
+# are pre-built saved searches that open straight into a filtered result set.
+chrono24:
+  - name: Stone dials
+    url: "https://www.chrono24.co.uk/search/index.htm?query=stone%20dial&dosearch=true&sortorder=5"
+  - name: Malachite
+    url: "https://www.chrono24.co.uk/search/index.htm?query=malachite&dosearch=true&sortorder=5"
+  - name: Lapis lazuli
+    url: "https://www.chrono24.co.uk/search/index.htm?query=lapis%20lazuli&dosearch=true&sortorder=5"
+  - name: Tiger's eye
+    url: "https://www.chrono24.co.uk/search/index.htm?query=tigers%20eye&dosearch=true&sortorder=5"
+  - name: Coral dial
+    url: "https://www.chrono24.co.uk/search/index.htm?query=coral%20dial&dosearch=true&sortorder=5"
+  - name: Onyx dial
+    url: "https://www.chrono24.co.uk/search/index.htm?query=onyx%20dial&dosearch=true&sortorder=5"
+  - name: Bamboo bracelet
+    url: "https://www.chrono24.co.uk/search/index.htm?query=bamboo%20bracelet&dosearch=true&sortorder=5"
+  - name: Woven bracelet
+    url: "https://www.chrono24.co.uk/search/index.htm?query=woven%20bracelet&dosearch=true&sortorder=5"
+  - name: Hammered
+    url: "https://www.chrono24.co.uk/search/index.htm?query=hammered&dosearch=true&sortorder=5"
+  - name: Beads of rice
+    url: "https://www.chrono24.co.uk/search/index.htm?query=beads%20of%20rice&dosearch=true&sortorder=5"
+  - name: Piaget Polo / Cobra
+    url: "https://www.chrono24.co.uk/search/index.htm?query=piaget%20cobra&dosearch=true&sortorder=5"
+  - name: AP Bamboo
+    url: "https://www.chrono24.co.uk/search/index.htm?query=audemars%20piguet%20bamboo&dosearch=true&sortorder=5"

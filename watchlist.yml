@@ -1,0 +1,30 @@
+# Alert rules. After each crawl, anything newly seen that matches a rule is
+# pushed to your phone via ntfy. Set the NTFY_TOPIC repo secret to switch on.
+#
+# match supports: tags (any-of), allTags (all-of), brands, maxPriceGBP,
+# minPriceGBP, minOddity, maxCaseMm, minCaseMm, text (regex over title+desc).
+
+rules:
+  - name: "Grails - feather & coral, any price"
+    priority: high
+    match:
+      tags: [feather-dial, coral]
+
+  - name: "Stone dials under £3k"
+    match:
+      tags: [stone-dial, malachite, lapis-lazuli, tigers-eye, onyx, jade, opal, sodalite, bloodstone]
+      maxPriceGBP: 3000
+
+  - name: "Odd weaves & links"
+    match:
+      tags: [woven-bracelet, hammered-bracelet, bamboo-bracelet, rope-bracelet, corn-bracelet, claw-bracelet, beads-of-rice]
+      maxPriceGBP: 5000
+
+  - name: "Genuinely weird, whatever it is"
+    match:
+      minOddity: 75
+
+  - name: "Small odd shapes"
+    match:
+      tags: [asymmetric, bullhead, hexagon, tv-case, tonneau, cobra]
+      maxPriceGBP: 4000

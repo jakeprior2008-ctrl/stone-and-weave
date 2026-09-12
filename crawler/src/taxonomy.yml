@@ -1,0 +1,326 @@
+# Tag rules: text (title + description + slug) -> tags.
+# Vocabulary derived from the real catalogues of Doble Vintage Watches,
+# Goldammer, Analog Shift and Craft & Tailored. Edit freely - no code change needed.
+#
+# Each rule:
+#   tag:     canonical tag id (kebab-case)
+#   label:   display name in the UI
+#   group:   filter-rail grouping
+#   any:     list of regex fragments; a match on any one applies the tag
+#   rarity:  0-10, feeds the oddity score. 10 = drop everything and look.
+
+# Grail tags: an outright drop-everything hit. Scored above ordinary rarity and
+# badged in the UI. Jake's standing order: feather and coral dials are the best
+# there is, stone dials and odd weaves right behind.
+grails: [feather-dial, coral, malachite, lapis-lazuli, tigers-eye, rhodochrosite, jasper, tortoise-shell]
+
+# Families: tags describing one physical feature. Only the rarest tag in a
+# family scores, so a lapis dial is not paid twice for also being a stone dial,
+# and a bark-finish case is not paid three times for bark + hammered + textured.
+families:
+  stone: [stone-dial, malachite, lapis-lazuli, tigers-eye, onyx, jade, opal, coral,
+          turquoise, rhodochrosite, sodalite, bloodstone, obsidian, agate, jasper,
+          aventurine, meteorite, tortoise-shell]
+  texture: [textured-dial, hammered-bracelet, bark-bracelet]
+
+groups:
+  dial: Dial
+  bracelet: Bracelet & strap
+  case: Case & shape
+  character: Character
+
+rules:
+  # ---------------------------------------------------------------- stone dials
+  - tag: stone-dial
+    label: Stone dial
+    group: dial
+    rarity: 6
+    any: ['stone dial', 'hardstone', 'pietra dura']
+  - tag: malachite
+    label: Malachite
+    group: dial
+    rarity: 9
+    any: ['malachite']
+  - tag: lapis-lazuli
+    label: Lapis lazuli
+    group: dial
+    rarity: 9
+    any: ['lapis[ -]?lazuli', '\blapis\b']
+  - tag: tigers-eye
+    label: Tiger's eye
+    group: dial
+    rarity: 9
+    any: ["tiger'?s?[ -]?eye"]
+  - tag: onyx
+    label: Onyx
+    group: dial
+    rarity: 6
+    any: ['\bonyx\b']
+  - tag: jade
+    label: Jade
+    group: dial
+    rarity: 8
+    any: ['\bjade\b', 'nephrite', 'jadeite']
+  - tag: opal
+    label: Opal
+    group: dial
+    rarity: 8
+    any: ['\bopal\b']
+  - tag: coral
+    label: Coral
+    group: dial
+    rarity: 10
+    any: ['coral dial', 'dial[^.]{0,25}\bcoral\b', 'coral stone', 'corallo']
+  - tag: turquoise
+    label: Turquoise
+    group: dial
+    rarity: 9
+    any: ['turquoise']
+  - tag: rhodochrosite
+    label: Rhodochrosite
+    group: dial
+    rarity: 10
+    any: ['rhodochrosite', 'rhodonite']
+  - tag: sodalite
+    label: Sodalite
+    group: dial
+    rarity: 10
+    any: ['sodalite']
+  - tag: bloodstone
+    label: Bloodstone
+    group: dial
+    rarity: 10
+    any: ['bloodstone', 'heliotrope']
+  - tag: obsidian
+    label: Obsidian
+    group: dial
+    rarity: 9
+    any: ['obsidian']
+  - tag: agate
+    label: Agate
+    group: dial
+    rarity: 9
+    any: ['\bagate\b', 'carnelian', 'chalcedony']
+  - tag: jasper
+    label: Jasper
+    group: dial
+    rarity: 10
+    any: ['jasper']
+  - tag: aventurine
+    label: Aventurine
+    group: dial
+    rarity: 9
+    any: ['aventurine', 'goldstone']
+  - tag: meteorite
+    label: Meteorite
+    group: dial
+    rarity: 8
+    any: ['meteorite', 'gibeon']
+  - tag: tortoise-shell
+    label: Tortoise shell
+    group: dial
+    rarity: 10
+    any: ['tortoise[ -]?shell']
+
+  # ------------------------------------------------------ other dial treatments
+  - tag: mother-of-pearl
+    label: Mother of pearl
+    group: dial
+    rarity: 4
+    any: ['mother[ -]?of[ -]?pearl', '\bMOP\b', 'nacre']
+  - tag: wood-dial
+    label: Wood
+    group: dial
+    rarity: 8
+    any: ['wood(en)? dial', 'walnut dial', 'briar']
+  - tag: enamel
+    label: Enamel
+    group: dial
+    rarity: 7
+    any: ['enamel', 'grand feu', 'cloisonn', 'champlev']
+  - tag: snowflake-dial
+    label: Snowflake finish
+    group: dial
+    rarity: 7
+    any: ['snowflake']
+  - tag: feather-dial
+    label: Feather
+    group: dial
+    rarity: 10
+    any: ['feather(?:ed)? dial', 'dial[^.]{0,25}\bfeather\b', 'plume dial', 'marquetry']
+  - tag: textured-dial
+    label: Textured
+    group: dial
+    rarity: 5
+    any: ['textured dial', 'linen dial', 'barleycorn', 'guilloch', 'hammered dial', 'bark dial']
+  - tag: tropical-dial
+    label: Tropical / patina
+    group: dial
+    rarity: 6
+    any: ['tropical', 'chocolate dial', 'spider dial', 'gilt dial']
+  - tag: sector-dial
+    label: Sector
+    group: dial
+    rarity: 7
+    any: ['sector dial', 'scientific dial']
+  - tag: pave
+    label: Pavé
+    group: dial
+    rarity: 5
+    any: ['pav[eé]']
+  - tag: skeleton
+    label: Skeleton
+    group: dial
+    rarity: 6
+    any: ['skeleton', 'openworked']
+
+  # ------------------------------------------------------------------ bracelets
+  - tag: bamboo-bracelet
+    label: Bamboo
+    group: bracelet
+    rarity: 7
+    any: ['bamboo']
+  - tag: woven-bracelet
+    label: Woven / mesh
+    group: bracelet
+    rarity: 6
+    any: ['woven', '\bweave\b', '\bmesh\b', 'milanese', 'basket']
+  - tag: hammered-bracelet
+    label: Hammered
+    group: bracelet
+    rarity: 8
+    any: ['hammered bracelet', 'hammered link', 'hammered finish', 'hammered gold']
+  - tag: beads-of-rice
+    label: Beads of rice
+    group: bracelet
+    rarity: 7
+    any: ['beads?[ -]of[ -]rice', '\bBOR\b']
+  - tag: rope-bracelet
+    label: Rope
+    group: bracelet
+    rarity: 8
+    any: ['rope bracelet', 'rope link']
+  - tag: corn-bracelet
+    label: Corn
+    group: bracelet
+    rarity: 9
+    any: ['corn bracelet', 'corn link']
+  - tag: claw-bracelet
+    label: Claw
+    group: bracelet
+    rarity: 9
+    any: ['claw bracelet', 'claw link', 'claw set']
+  - tag: brick-bracelet
+    label: Brick
+    group: bracelet
+    rarity: 7
+    any: ['brick bracelet', 'brick link']
+  - tag: bark-bracelet
+    label: Bark
+    group: bracelet
+    rarity: 8
+    any: ['bark bracelet', 'bark finish']
+  - tag: ladder-bracelet
+    label: Ladder
+    group: bracelet
+    rarity: 8
+    any: ['ladder bracelet', 'ladder link']
+  - tag: gay-freres
+    label: Gay Frères
+    group: bracelet
+    rarity: 8
+    any: ['gay ?fr[eè]res', '\bGF\b bracelet']
+  - tag: integrated-bracelet
+    label: Integrated
+    group: bracelet
+    rarity: 3
+    any: ['integrated bracelet']
+
+  # ----------------------------------------------------------------- case shape
+  - tag: cobra
+    label: Cobra
+    group: case
+    rarity: 8
+    any: ['\bcobra\b']
+  - tag: ellipse
+    label: Ellipse
+    group: case
+    rarity: 5
+    any: ['ellipse', 'ellisse']
+  - tag: tonneau
+    label: Tonneau
+    group: case
+    rarity: 6
+    any: ['tonneau']
+  - tag: tv-case
+    label: TV / screen
+    group: case
+    rarity: 7
+    any: ['\bTV\b', 'television case', 'screen case']
+  - tag: cushion
+    label: Cushion
+    group: case
+    rarity: 5
+    any: ['cushion']
+  - tag: octagon
+    label: Octagon
+    group: case
+    rarity: 5
+    any: ['octagon', 'octagonal']
+  - tag: hexagon
+    label: Hexagon
+    group: case
+    rarity: 8
+    any: ['hexagon', 'hexagonal']
+  - tag: oval-case
+    label: Oval
+    group: case
+    rarity: 6
+    any: ['oval case', 'oval watch', '\boval\b']
+  - tag: asymmetric
+    label: Asymmetric
+    group: case
+    rarity: 9
+    any: ['asymmetric', 'asymmetrical']
+  - tag: bullhead
+    label: Bullhead
+    group: case
+    rarity: 9
+    any: ['bullhead', 'bull head']
+  - tag: hooded-lugs
+    label: Hooded lugs
+    group: case
+    rarity: 8
+    any: ['hooded lug', 'covered lug']
+  - tag: compressor
+    label: Compressor
+    group: case
+    rarity: 7
+    any: ['compressor', 'super compressor']
+
+  # ----------------------------------------------------------------- character
+  - tag: cocktail
+    label: Cocktail watch
+    group: character
+    rarity: 7
+    any: ['cocktail']
+  - tag: jewellery-watch
+    label: Jewellery piece
+    group: character
+    rarity: 6
+    any: ['jewell?ery watch', 'bracelet watch', 'bangle watch', 'cuff watch']
+  - tag: small-size
+    label: Small / unisex
+    group: character
+    rarity: 3
+    any: ['\b2[0-9]mm\b', '\bmini\b', '\bbaby\b']
+  - tag: nos
+    label: NOS / unworn
+    group: character
+    rarity: 6
+    any: ['\bNOS\b', 'new old stock', 'unworn', 'old stock']
+  - tag: full-set
+    label: Full set
+    group: character
+    rarity: 4
+    any: ['full set', 'box and papers', 'original papers', 'w/ original']

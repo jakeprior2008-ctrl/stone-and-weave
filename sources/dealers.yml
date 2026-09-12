@@ -1,0 +1,144 @@
+# Dealer registry. Every entry below was probed live before being added.
+#
+# adapter:
+#   shopify - bulk /products.json. Fast, one request per 250 items. Preferred.
+#   jsonld  - sitemap.xml -> product pages -> schema.org JSON-LD. Works on
+#             Squarespace / Wix / WooCommerce. Slower, so rate-limited harder.
+#
+# Set `enabled: false` to mute a dealer without losing its history.
+
+dealers:
+  # ---------------------------------------------------------- the gold standard
+  - id: doble
+    name: Doble Vintage Watches
+    url: https://www.doblevintagewatches.com
+    adapter: jsonld
+    productPath: '/p/'
+    currency: GBP
+    region: UK
+    instagram: doblevintagewatches
+    priority: 1
+    maxProducts: 700  # full catalogue is ~630
+    notes: >-
+      Jake's benchmark. Stone dials, bamboo and cobra bracelets, feather dials.
+      The taxonomy vocabulary is derived from this catalogue.
+
+  # ------------------------------------------------------------------- shopify
+  - id: goldammer
+    name: Goldammer
+    url: https://goldammer.me
+    adapter: shopify
+    currency: EUR
+    region: DE
+    instagram: goldammervintage
+    priority: 1
+
+  - id: analogshift
+    name: Analog Shift
+    url: https://analogshift.com
+    adapter: shopify
+    currency: USD
+    region: US
+    instagram: analogshift
+    priority: 1
+
+  - id: craftandtailored
+    name: Craft & Tailored
+    url: https://craftandtailored.com
+    adapter: shopify
+    currency: USD
+    region: US
+    instagram: craftandtailored
+    priority: 1
+
+  - id: thekeystone
+    name: The Keystone
+    url: https://www.thekeystone.com
+    adapter: shopify
+    currency: USD
+    region: US
+    priority: 2
+
+  - id: vintagewatchleader
+    name: Vintage Watch Leader
+    url: https://www.vintagewatchleader.com
+    adapter: shopify
+    currency: EUR
+    region: EU
+    priority: 2
+
+  - id: shopworn
+    name: Shopworn
+    url: https://shopworn.com
+    adapter: shopify
+    currency: USD
+    region: US
+    priority: 3
+
+  - id: hairspring
+    name: Hairspring
+    url: https://www.hairspring.com
+    adapter: shopify
+    currency: USD
+    region: US
+    priority: 2
+
+  - id: anordain
+    name: anOrdain
+    url: https://anordain.com
+    adapter: shopify
+    currency: GBP
+    region: UK
+    instagram: anordain
+    priority: 3
+    notes: Modern, but grand feu enamel dials - squarely on-taste.
+
+  - id: autodromo
+    name: Autodromo
+    url: https://www.autodromo.com
+    adapter: shopify
+    currency: USD
+    region: US
+    priority: 3
+
+  - id: lorier
+    name: Lorier
+    url: https://www.lorierwatches.com
+    adapter: shopify
+    currency: USD
+    region: US
+    priority: 3
+
+  - id: rzewatches
+    name: RZE Watches
+    url: https://rzewatches.com
+    adapter: shopify
+    currency: USD
+    region: SG
+    priority: 4
+
+  # -------------------------------------------------------------------- jsonld
+  - id: subdial
+    name: Subdial
+    url: https://subdial.com
+    adapter: jsonld
+    productPath: '/listing/'
+    currency: GBP
+    region: UK
+    priority: 2
+    # ~13,600 live listings - far too many to fetch one page at a time. The
+    # slugs are descriptive, so tag-filter them first and only fetch the odd ones.
+    prefilter: true
+    maxProducts: 300
+
+# Probed and deliberately excluded - kept here so nobody re-probes them.
+excluded:
+  - { url: https://www.everestwatch.com, reason: 'domain parked, serves a lander' }
+  - { url: https://tropicalwatch.com, reason: 'HTTP 500 on products.json' }
+  - { url: https://www.watchfinder.co.uk, reason: 'HTTP 403, anti-bot' }
+  - { url: https://www.cyclopewatches.com, reason: 'Wix, no open product feed - link-out only' }
+  - { url: https://wristandwatchco.com, reason: 'HTTP 202 challenge page - link-out only' }
+  - { url: https://grymrkt.co, reason: 'auction house, no product feed - link-out only' }
+  - { url: https://www.dadandson-watches.com, reason: 'Squarespace gallery site, sells by enquiry - no product pages. In the Hunt tab.' }
+  - { url: https://www.hodinkee.com, reason: 'no products.json' }
+  - { url: https://www.windvintage.com, reason: 'no products.json' }

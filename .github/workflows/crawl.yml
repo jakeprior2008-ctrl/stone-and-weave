@@ -1,0 +1,70 @@
+name: Crawl
+
+on:
+  schedule:
+    # Every 6 hours. Public repo, so Actions minutes are free.
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'Crawl a single dealer id only (blank = all)'
+        required: false
+
+# Never let two crawls write data/ at once.
+concurrency:
+  group: crawl
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # A taxonomy regression would poison the dataset, so gate the crawl on tests.
+      - run: pnpm test
+
+      - name: Crawl
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
+          EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
+        run: |
+          if [ -n "${{ inputs.source }}" ]; then
+            pnpm crawl -- --source "${{ inputs.source }}"
+          else
+            pnpm crawl
+          fi
+
+      - name: Commit data
+        run: |
+          git config user.name  "stone-and-weave[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if git diff --staged --quiet; then
+            echo "No listing changes."
+            exit 0
+          fi
+          active=$(node -p "require('./data/listings.json').length")
+          git commit -m "data: crawl $(date -u +%Y-%m-%dT%H:%MZ) — ${active} active listings"
+          # Another crawl or a push may have landed while we were fetching.
+          for i in 1 2 3 4; do
+            git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            sleep $((2 ** i))
+          done
+          exit 1

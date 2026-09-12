@@ -1,0 +1,28 @@
+{
+  "name": "stone-and-weave",
+  "private": true,
+  "type": "module",
+  "description": "Zero-cost discovery engine for vintage, odd and obscure watches.",
+  "scripts": {
+    "crawl": "tsx crawler/src/index.ts",
+    "crawl:dry": "tsx crawler/src/index.ts --dry-run",
+    "test": "vitest run",
+    "dev": "vite --config web/vite.config.ts",
+    "build": "vite build --config web/vite.config.ts",
+    "preview": "vite preview --config web/vite.config.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.9.1",
+    "@types/node": "^22.20.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "minisearch": "^7.1.1",
+    "preact": "^10.25.3",
+    "yaml": "^2.6.1"
+  }
+}

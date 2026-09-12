@@ -1,0 +1,212 @@
+import MiniSearch from 'minisearch';
+import { useEffect, useMemo, useState } from 'preact/hooks';
+import { Card } from './card.tsx';
+import { Detail } from './detail.tsx';
+import { Hunt as HuntTab } from './hunt.tsx';
+import { Rail } from './rail.tsx';
+import { apply, fromQuery, toQuery, type Filters } from './filters.ts';
+import type { Hunt, Listing, SourceMeta, Taxonomy } from './types.ts';
+
+const base = import.meta.env.BASE_URL;
+const json = async <T,>(file: string, fallback: T): Promise<T> => {
+  try {
+    const res = await fetch(`${base}${file}`);
+    return res.ok ? ((await res.json()) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+const LAST_VISIT = 'stone-and-weave:last-visit';
+
+export function App() {
+  const [listings, setListings] = useState<Listing[] | null>(null);
+  const [sold, setSold] = useState<Listing[] | null>(null);
+  const [loadingSold, setLoadingSold] = useState(false);
+  const [taxonomy, setTaxonomy] = useState<Taxonomy>({ groups: {}, tags: [] });
+  const [meta, setMeta] = useState<SourceMeta[]>([]);
+  const [hunt, setHunt] = useState<Hunt | null>(null);
+  const [filters, setFilters] = useState<Filters>(() => fromQuery(location.search));
+  const [selected, setSelected] = useState<Listing | null>(null);
+  const [tab, setTab] = useState<'browse' | 'hunt'>('browse');
+  const [railOpen, setRailOpen] = useState(false);
+  const [lastVisit] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem(LAST_VISIT);
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    json<Listing[]>('listings.json', []).then(setListings);
+    json<Taxonomy>('taxonomy.json', { groups: {}, tags: [] }).then(setTaxonomy);
+    json<SourceMeta[]>('meta.json', []).then(setMeta);
+    json<Hunt | null>('hunt.json', null).then(setHunt);
+    try {
+      localStorage.setItem(LAST_VISIT, new Date().toISOString());
+    } catch {
+      /* private mode - the badge is a nicety, not a requirement */
+    }
+  }, []);
+
+  // The sold archive is a separate megabyte-scale file, so it is fetched once,
+  // and only if you actually ask to see it.
+  useEffect(() => {
+    if (!filters.includeSold || sold !== null || loadingSold) return;
+    setLoadingSold(true);
+    json<Listing[]>('sold.json', []).then((s) => {
+      setSold(s);
+      setLoadingSold(false);
+    });
+  }, [filters.includeSold, sold, loadingSold]);
+
+  useEffect(() => {
+    const q = toQuery(filters);
+    history.replaceState(null, '', q ? `?${q}` : location.pathname);
+  }, [filters]);
+
+  const corpus = useMemo(
+    () => (filters.includeSold && sold ? [...(listings ?? []), ...sold] : listings),
+    [listings, sold, filters.includeSold],
+  );
+
+  const index = useMemo(() => {
+    if (!corpus) return null;
+    const mini = new MiniSearch<Listing>({
+      fields: ['title', 'description', 'brand', 'sourceName', 'tags', 'reference'],
+      storeFields: ['id'],
+      searchOptions: { prefix: true, fuzzy: 0.2, combineWith: 'AND' },
+      extractField: (doc, field) =>
+        field === 'tags' ? doc.tags.join(' ') : ((doc as any)[field] ?? ''),
+    });
+    mini.addAll(corpus);
+    return mini;
+  }, [corpus]);
+
+  const matchedIds = useMemo(() => {
+    if (!index || !filters.q.trim()) return null;
+    return new Set(index.search(filters.q).map((r) => r.id as string));
+  }, [index, filters.q]);
+
+  const results = useMemo(
+    () => (corpus ? apply(corpus, filters, matchedIds) : []),
+    [corpus, filters, matchedIds],
+  );
+
+  const freshCount = useMemo(
+    () => (lastVisit && listings ? listings.filter((l) => l.firstSeen > lastVisit).length : 0),
+    [lastVisit, listings],
+  );
+
+  const stale = meta.filter((m) => !m.ok);
+  const set = (patch: Partial<Filters>) => setFilters((f) => ({ ...f, ...patch }));
+
+  return (
+    <div class="shell">
+      <header class="top">
+        <div class="brand">
+          <h1>Stone &amp; Weave</h1>
+          <span class="tagline">Stone dials, odd weaves, difficult things</span>
+        </div>
+
+        <div class="tabs">
+          <button class={tab === 'browse' ? 'on' : ''} onClick={() => setTab('browse')}>
+            Browse
+          </button>
+          <button class={tab === 'hunt' ? 'on' : ''} onClick={() => setTab('hunt')}>
+            Hunt
+          </button>
+        </div>
+
+        {tab === 'browse' && (
+          <input
+            class="search"
+            type="search"
+            placeholder="malachite, bamboo, Piaget Ellipse…"
+            value={filters.q}
+            onInput={(e) => set({ q: (e.target as HTMLInputElement).value })}
+          />
+        )}
+      </header>
+
+      {tab === 'hunt' ? (
+        <HuntTab hunt={hunt} />
+      ) : (
+        <div class="body">
+          <button class="rail-toggle" onClick={() => setRailOpen((o) => !o)}>
+            {railOpen ? 'Hide filters' : 'Filters'}
+            {filters.tags.length > 0 && <span class="pip">{filters.tags.length}</span>}
+          </button>
+
+          <Rail
+            open={railOpen}
+            filters={filters}
+            set={set}
+            taxonomy={taxonomy}
+            listings={corpus ?? []}
+            meta={meta}
+          />
+
+          <main>
+            <div class="bar">
+              <span class="count">
+                {listings === null
+                  ? 'Loading…'
+                  : loadingSold
+                    ? 'Loading the sold archive…'
+                    : `${results.length.toLocaleString()} watches`}
+                {freshCount > 0 && <em class="fresh"> · {freshCount} new since your last visit</em>}
+              </span>
+
+              <select
+                value={filters.sort}
+                onChange={(e) => set({ sort: (e.target as HTMLSelectElement).value as Filters['sort'] })}
+              >
+                <option value="oddity">Weird &amp; wonderful</option>
+                <option value="new">Newest found</option>
+                <option value="price-asc">Price: low to high</option>
+                <option value="price-desc">Price: high to low</option>
+                <option value="drop">Biggest price drop</option>
+                <option value="stale">Longest listed</option>
+              </select>
+            </div>
+
+            {stale.length > 0 && (
+              <p class="stale">
+                {stale.length} source{stale.length > 1 ? 's' : ''} did not respond on the last crawl
+                ({stale.map((s) => s.name).join(', ')}). Their listings are held, not deleted.
+              </p>
+            )}
+
+            {listings !== null && !loadingSold && results.length === 0 && (
+              <p class="empty">
+                Nothing matches. {filters.tags.length > 0 && 'Tags combine with AND — try removing one.'}
+              </p>
+            )}
+
+            <div class="grid">
+              {results.slice(0, 600).map((l) => (
+                <Card key={l.id} listing={l} isNew={!!lastVisit && l.firstSeen > lastVisit} onOpen={setSelected} />
+              ))}
+            </div>
+
+            {results.length > 600 && (
+              <p class="more">Showing the first 600 of {results.length.toLocaleString()} — narrow the filters to see the rest.</p>
+            )}
+          </main>
+        </div>
+      )}
+
+      {selected && (
+        <Detail
+          listing={selected}
+          related={(listings ?? []).filter(
+            (l) => l.fingerprint === selected.fingerprint && l.id !== selected.id,
+          )}
+          onClose={() => setSelected(null)}
+        />
+      )}
+    </div>
+  );
+}
