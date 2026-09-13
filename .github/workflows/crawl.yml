@@ -62,9 +62,22 @@ jobs:
           fi
           active=$(node -p "require('./data/listings.json').length")
           git commit -m "data: crawl $(date -u +%Y-%m-%dT%H:%MZ) — ${active} active listings"
-          # Another crawl or a push may have landed while we were fetching.
+
+          # Another push may have landed while we were fetching. The data files
+          # are generated, so a "conflict" is not a real one - this crawl is
+          # strictly newer than whatever it is rebasing onto, and its output
+          # should win outright. Rebasing tries to merge them line by line and
+          # leaves the tree unmerged, which is how the 16:20 run died. Instead,
+          # rewind onto the remote tip while keeping our files, and recommit.
           for i in 1 2 3 4; do
-            git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              exit 0
+            fi
+            git fetch origin "${GITHUB_REF_NAME}" || true
+            git reset --soft "origin/${GITHUB_REF_NAME}"
+            git add data/
+            git diff --staged --quiet && exit 0
+            git commit -m "data: crawl $(date -u +%Y-%m-%dT%H:%MZ) — ${active} active listings"
             sleep $((2 ** i))
           done
           exit 1
