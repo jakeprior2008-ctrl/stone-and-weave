@@ -3,11 +3,21 @@
 # Goldammer, Analog Shift and Craft & Tailored. Edit freely - no code change needed.
 #
 # Each rule:
-#   tag:     canonical tag id (kebab-case)
-#   label:   display name in the UI
-#   group:   filter-rail grouping
-#   any:     list of regex fragments; a match on any one applies the tag
-#   rarity:  0-10, feeds the oddity score. 10 = drop everything and look.
+#   tag:      canonical tag id (kebab-case)
+#   label:    display name in the UI
+#   group:    filter-rail grouping
+#   any:      list of regex fragments; a match on any one applies the tag
+#   rarity:   0-10, feeds the oddity score. 10 = drop everything and look.
+#   synonyms: optional list of plain lower-case words/phrases (NOT regex) a
+#             person might type for this tag. Used only by the site's query
+#             parser to resolve natural-language search into tag filters -
+#             it never touches tagging itself, and does not need to mirror
+#             the `any` patterns above.
+#
+# `phrases:` (top level, below) maps a multi-word natural phrase to a list of
+# existing tag ids, for concepts that span more than one tag (e.g. "green
+# stone" -> several stone dial tags). Same rule: query parser only, never
+# tagging.
 
 # Grail tags: an outright drop-everything hit. Scored above ordinary rarity and
 # badged in the UI. Jake's standing order: feather and coral dials are the best
@@ -33,6 +43,34 @@ groups:
   case: Case & shape
   character: Character
 
+# Multi-tag natural-language phrases -> list of existing tag ids. Query
+# parser only; every tag named here must exist as a rule below.
+phrases:
+  green stone: [malachite, jade, chrysocolla, aventurine, amazonite, bloodstone]
+  blue stone: [lapis-lazuli, sodalite, turquoise]
+  black stone: [onyx, obsidian]
+  red stone: [coral, jasper, rhodochrosite]
+  pink stone: [rhodochrosite, rhodonite, coral]
+  brown stone: [tigers-eye, tiger-iron, petrified-wood, pietersite]
+  white stone: [mother-of-pearl, opal]
+  stone: [stone-dial]
+  woven: [woven-bracelet, bamboo-bracelet, rope-bracelet, corn-bracelet, claw-bracelet,
+          brick-bracelet, bark-bracelet, ladder-bracelet, beads-of-rice, tubogas]
+  weave: [woven-bracelet, bamboo-bracelet, rope-bracelet, corn-bracelet, claw-bracelet,
+          brick-bracelet, bark-bracelet, ladder-bracelet, beads-of-rice, tubogas]
+  mesh: [woven-bracelet, bamboo-bracelet, rope-bracelet, corn-bracelet, claw-bracelet,
+         brick-bracelet, bark-bracelet, ladder-bracelet, beads-of-rice, tubogas]
+  shaped case: [tonneau, tv-case, cushion, octagon, hexagon, oval-case, asymmetric, ellipse]
+  shaped: [tonneau, tv-case, cushion, octagon, hexagon, oval-case, asymmetric, ellipse]
+  odd shape: [tonneau, tv-case, cushion, octagon, hexagon, oval-case, asymmetric, ellipse]
+  textured: [textured-dial, hammered-bracelet, bark-bracelet, bark-finish]
+  complication: [jump-hour, mystery-dial, world-time, alarm, moonphase]
+  odd bracelet: [woven-bracelet, bamboo-bracelet, rope-bracelet, corn-bracelet, claw-bracelet,
+                 brick-bracelet, bark-bracelet, ladder-bracelet, beads-of-rice, tubogas]
+  scenic dial: [cloisonne, feather-dial, birds-eye, lacquer]
+  rare stone: [rhodochrosite, jasper, tiger-iron, chrysocolla, pietersite, amazonite,
+               rhodonite, unakite, petrified-wood]
+
 rules:
   # ---------------------------------------------------------------- stone dials
   - tag: stone-dial
@@ -40,91 +78,109 @@ rules:
     group: dial
     rarity: 6
     any: ['stone dial', 'hardstone', 'pietra dura']
+    synonyms: ['stone dial', 'hardstone', 'hard stone']
   - tag: malachite
     label: Malachite
     group: dial
     rarity: 9
     any: ['malachite']
+    synonyms: ['malachite', 'green stone dial']
   - tag: lapis-lazuli
     label: Lapis lazuli
     group: dial
     rarity: 9
     any: ['lapis[ -]?lazuli', '\blapis\b']
+    synonyms: ['lapis', 'lapis lazuli', 'blue stone dial']
   - tag: tigers-eye
     label: Tiger's eye
     group: dial
     rarity: 9
     any: ["tiger'?s?[ -]?eye"]
+    synonyms: ['tiger eye', "tiger's eye", 'tigers eye']
   - tag: onyx
     label: Onyx
     group: dial
     rarity: 6
     any: ['\bonyx\b']
+    synonyms: ['onyx', 'black stone dial']
   - tag: jade
     label: Jade
     group: dial
     rarity: 8
     any: ['\bjade\b', 'nephrite', 'jadeite']
+    synonyms: ['jade', 'nephrite', 'jadeite']
   - tag: opal
     label: Opal
     group: dial
     rarity: 8
     any: ['\bopal\b']
+    synonyms: ['opal']
   - tag: coral
     label: Coral
     group: dial
     rarity: 10
     any: ['coral dial', 'dial[^.]{0,25}\bcoral\b', 'coral stone', 'corallo']
+    synonyms: ['coral', 'coral dial']
   - tag: turquoise
     label: Turquoise
     group: dial
     rarity: 9
     any: ['turquoise']
+    synonyms: ['turquoise']
   - tag: rhodochrosite
     label: Rhodochrosite
     group: dial
     rarity: 10
     any: ['rhodochrosite', 'rhodonite']
+    synonyms: ['rhodochrosite', 'inca rose']
   - tag: sodalite
     label: Sodalite
     group: dial
     rarity: 10
     any: ['sodalite']
+    synonyms: ['sodalite']
   - tag: bloodstone
     label: Bloodstone
     group: dial
     rarity: 10
     any: ['bloodstone', 'heliotrope']
+    synonyms: ['bloodstone', 'heliotrope']
   - tag: obsidian
     label: Obsidian
     group: dial
     rarity: 9
     any: ['obsidian']
+    synonyms: ['obsidian']
   - tag: agate
     label: Agate
     group: dial
     rarity: 9
     any: ['\bagate\b', 'carnelian', 'chalcedony']
+    synonyms: ['agate', 'carnelian', 'chalcedony']
   - tag: jasper
     label: Jasper
     group: dial
     rarity: 10
     any: ['jasper']
+    synonyms: ['jasper']
   - tag: aventurine
     label: Aventurine
     group: dial
     rarity: 9
     any: ['aventurine', 'goldstone']
+    synonyms: ['aventurine', 'goldstone']
   - tag: meteorite
     label: Meteorite
     group: dial
     rarity: 8
     any: ['meteorite', 'gibeon']
+    synonyms: ['meteorite', 'gibeon']
   - tag: tortoise-shell
     label: Tortoise shell
     group: dial
     rarity: 10
     any: ['tortoise[ -]?shell']
+    synonyms: ['tortoise shell', 'tortoiseshell', 'faux tortoise']
 
   # ------------------------------------------------------ other dial treatments
   - tag: mother-of-pearl
@@ -132,51 +188,61 @@ rules:
     group: dial
     rarity: 4
     any: ['mother[ -]?of[ -]?pearl', '\bMOP\b', 'nacre']
+    synonyms: ['mop', 'mother of pearl', 'nacre']
   - tag: wood-dial
     label: Wood
     group: dial
     rarity: 8
     any: ['wood(en)? dial', 'walnut dial', 'briar']
+    synonyms: ['wood dial', 'wooden dial', 'walnut dial', 'briar']
   - tag: enamel
     label: Enamel
     group: dial
     rarity: 7
     any: ['enamel', 'grand feu', 'cloisonn', 'champlev']
+    synonyms: ['enamel', 'grand feu', 'champleve']
   - tag: snowflake-dial
     label: Snowflake finish
     group: dial
     rarity: 7
     any: ['snowflake']
+    synonyms: ['snowflake', 'snowflake dial', 'snowflake finish']
   - tag: feather-dial
     label: Feather
     group: dial
     rarity: 10
     any: ['feather(?:ed)? dial', 'dial[^.]{0,25}\bfeather\b', 'plume dial', 'marquetry']
+    synonyms: ['feather dial', 'feathered dial', 'plume dial', 'marquetry']
   - tag: textured-dial
     label: Textured
     group: dial
     rarity: 5
     any: ['textured dial', 'linen dial', 'barleycorn', 'guilloch', 'hammered dial', 'bark dial']
+    synonyms: ['textured dial', 'linen dial', 'barleycorn', 'guilloche']
   - tag: tropical-dial
     label: Tropical / patina
     group: dial
     rarity: 6
     any: ['tropical', 'chocolate dial', 'spider dial', 'gilt dial']
+    synonyms: ['tropical dial', 'tropical', 'chocolate dial', 'spider dial', 'gilt dial', 'patina dial']
   - tag: sector-dial
     label: Sector
     group: dial
     rarity: 7
     any: ['sector dial', 'scientific dial']
+    synonyms: ['sector dial', 'scientific dial']
   - tag: pave
     label: Pavé
     group: dial
     rarity: 5
     any: ['pav[eé]']
+    synonyms: ['pave', 'pave dial']
   - tag: skeleton
     label: Skeleton
     group: dial
     rarity: 6
     any: ['skeleton', 'openworked']
+    synonyms: ['skeleton', 'skeletonised', 'skeletonized', 'openworked', 'see-through dial']
 
   # ------------------------------------------------------------------ bracelets
   - tag: bamboo-bracelet
@@ -184,61 +250,73 @@ rules:
     group: bracelet
     rarity: 7
     any: ['bamboo']
+    synonyms: ['bamboo bracelet', 'bamboo']
   - tag: woven-bracelet
     label: Woven / mesh
     group: bracelet
     rarity: 6
     any: ['woven', '\bweave\b', '\bmesh\b', 'milanese', 'basket']
+    synonyms: ['woven bracelet', 'mesh bracelet', 'milanese', 'basket weave']
   - tag: hammered-bracelet
     label: Hammered
     group: bracelet
     rarity: 8
     any: ['hammered bracelet', 'hammered link', 'hammered finish', 'hammered gold']
+    synonyms: ['hammered bracelet', 'hammered gold', 'hammered finish']
   - tag: beads-of-rice
     label: Beads of rice
     group: bracelet
     rarity: 7
     any: ['beads?[ -]of[ -]rice', '\bBOR\b']
+    synonyms: ['rice bracelet', 'beads of rice', 'rice beads', 'bor bracelet']
   - tag: rope-bracelet
     label: Rope
     group: bracelet
     rarity: 8
     any: ['rope bracelet', 'rope link']
+    synonyms: ['rope bracelet', 'rope link']
   - tag: corn-bracelet
     label: Corn
     group: bracelet
     rarity: 9
     any: ['corn bracelet', 'corn link']
+    synonyms: ['corn bracelet', 'corn link']
   - tag: claw-bracelet
     label: Claw
     group: bracelet
     rarity: 9
     any: ['claw bracelet', 'claw link', 'claw set']
+    synonyms: ['claw bracelet', 'claw link']
   - tag: brick-bracelet
     label: Brick
     group: bracelet
     rarity: 7
     any: ['brick bracelet', 'brick link']
+    synonyms: ['brick bracelet', 'brick link']
   - tag: bark-bracelet
     label: Bark
     group: bracelet
     rarity: 8
     any: ['bark bracelet', 'bark finish']
+    synonyms: ['bark bracelet']
   - tag: ladder-bracelet
     label: Ladder
     group: bracelet
     rarity: 8
     any: ['ladder bracelet', 'ladder link']
+    synonyms: ['ladder bracelet', 'ladder link']
   - tag: gay-freres
     label: Gay Frères
     group: bracelet
     rarity: 8
     any: ['gay ?fr[eè]res', '\bGF\b bracelet']
+    synonyms: ['gay freres', "gay frères", 'gf bracelet']
   - tag: integrated-bracelet
     label: Integrated
     group: bracelet
     rarity: 3
     any: ['integrated bracelet']
+    synonyms: ['integrated bracelet']
 
   # ----------------------------------------------------------------- case shape
   - tag: cobra
@@ -246,61 +324,73 @@ rules:
     group: case
     rarity: 8
     any: ['\bcobra\b']
+    synonyms: ['cobra', 'cobra bracelet']
   - tag: ellipse
     label: Ellipse
     group: case
     rarity: 5
     any: ['ellipse', 'ellisse']
+    synonyms: ['ellipse', 'elliptical']
   - tag: tonneau
     label: Tonneau
     group: case
     rarity: 6
     any: ['tonneau']
+    synonyms: ['tonneau', 'barrel case', 'barrel shaped']
   - tag: tv-case
     label: TV / screen
     group: case
     rarity: 7
     any: ['\bTV\b', 'television case', 'screen case']
+    synonyms: ['tv', 'television', 'tv shape', 'tv case', 'screen case']
   - tag: cushion
     label: Cushion
     group: case
     rarity: 5
     any: ['cushion']
+    synonyms: ['cushion case', 'cushion shape']
   - tag: octagon
     label: Octagon
     group: case
     rarity: 5
     any: ['octagon', 'octagonal']
+    synonyms: ['octagon', 'octagonal']
   - tag: hexagon
     label: Hexagon
     group: case
     rarity: 8
     any: ['hexagon', 'hexagonal']
+    synonyms: ['hexagon', 'hexagonal']
   - tag: oval-case
     label: Oval
     group: case
     rarity: 6
     any: ['oval case', 'oval watch', '\boval\b']
+    synonyms: ['oval', 'oval case']
   - tag: asymmetric
     label: Asymmetric
     group: case
     rarity: 9
     any: ['asymmetric', 'asymmetrical']
+    synonyms: ['asymmetric', 'asymmetrical']
   - tag: bullhead
     label: Bullhead
     group: case
     rarity: 9
     any: ['bullhead', 'bull head']
+    synonyms: ['bullhead', 'bull head']
   - tag: hooded-lugs
     label: Hooded lugs
     group: case
     rarity: 8
     any: ['hooded lug', 'covered lug']
+    synonyms: ['hooded', 'hooded lugs', 'covered lugs']
   - tag: compressor
     label: Compressor
     group: case
     rarity: 7
     any: ['compressor', 'super compressor']
+    synonyms: ['compressor', 'super compressor']
 
   # ----------------------------------------------------------------- character
   - tag: cocktail
@@ -309,29 +399,34 @@ rules:
     rarity: 7
     titleOnly: true
     any: ['cocktail']
+    synonyms: ['cocktail watch', 'cocktail']
   - tag: jewellery-watch
     label: Jewellery piece
     group: character
     rarity: 6
     titleOnly: true
     any: ['jewell?ery watch', 'bracelet watch', 'bangle watch', 'cuff watch']
+    synonyms: ['jewellery watch', 'jewelry watch', 'bracelet watch', 'bangle watch', 'cuff watch']
   - tag: small-size
     label: Small / unisex
     group: character
     rarity: 3
     any: ['\b2[0-9]mm\b', '\bmini\b', '\bbaby\b']
+    synonyms: ['small', 'petite', 'mini', 'baby size']
   - tag: nos
     label: NOS / unworn
     group: character
     rarity: 6
     titleOnly: true
     any: ['\bNOS\b', 'new old stock', 'unworn', 'old stock']
+    synonyms: ['new old stock', 'unworn', 'nos', 'old stock']
   - tag: full-set
     label: Full set
     group: character
     rarity: 4
     titleOnly: true
     any: ['full set', 'box and papers', 'original papers', 'w/ original']
+    synonyms: ['box and papers', 'full set', 'original papers']
 
   # ------------------------------------------------- complications & oddities
   # Beyond the dial-and-bracelet vocabulary: watches that are strange in what
@@ -342,72 +437,84 @@ rules:
     rarity: 9
     titleOnly: true
     any: ['jump(ing)? hour', 'direct[ - ]?read', 'digital display', 'wandering hour']
+    synonyms: ['jump hour', 'jumping hour', 'direct read', 'wandering hour']
   - tag: mystery-dial
     label: Mystery dial
     group: dial
     rarity: 10
     titleOnly: true
     any: ['mystery dial', 'mysterieuse', 'floating hands?']
+    synonyms: ['mystery dial', 'floating hands', 'mysterieuse']
   - tag: world-time
     label: World time
     group: character
     rarity: 7
     titleOnly: true
     any: ['world ?time', 'worldtimer', 'heure universelle']
+    synonyms: ['world time', 'worldtimer', 'world timer']
   - tag: alarm
     label: Alarm
     group: character
     rarity: 6
     titleOnly: true
     any: ['\balarm\b', 'memovox', 'cricket', 'wrist alarm']
+    synonyms: ['alarm', 'wrist alarm', 'memovox']
   - tag: moonphase
     label: Moonphase
     group: character
     rarity: 6
     titleOnly: true
     any: ['moon ?phase', 'triple calendar', 'complete calendar', 'quantieme']
+    synonyms: ['moonphase', 'moon phase', 'triple calendar', 'complete calendar']
   - tag: doctors-watch
     label: Doctor's / pulsation
     group: character
     rarity: 8
     titleOnly: true
     any: ["doctor'?s watch", 'pulsation', 'pulsometer', 'asthmometer', 'telemeter']
+    synonyms: ["doctor's watch", 'doctors watch', 'pulsation', 'pulsometer', 'telemeter']
   - tag: unsigned
     label: Unsigned / anonymous
     group: character
     rarity: 8
     titleOnly: true
     any: ['unsigned', 'anonymous dial', 'no brand', 'unbranded']
+    synonyms: ['unsigned', 'anonymous', 'unbranded', 'no brand']
   - tag: double-signed
     label: Double signed
     group: dial
     rarity: 9
     titleOnly: true
     any: ['double[ -]signed', 'retailer signed', 'tiffany & co\.? dial', 'signed tiffany', 'cartier signed', 'serpico', 'hausmann', 'beyer']
+    synonyms: ['double signed', 'retailer signed', 'tiffany dial', 'signed tiffany']
   - tag: prototype
     label: Prototype / one-off
     group: character
     rarity: 10
     titleOnly: true
     any: ['\\bprototype\\b', 'pièce unique', 'pi[eè]ce unique', 'never released', 'pre-?production']
+    synonyms: ['prototype', 'one off', 'one-off', 'piece unique', 'never released', 'pre-production']
   - tag: military
     label: Military issue
     group: character
     rarity: 7
     titleOnly: true
     any: ['military issue', 'issued to', '\bW10\b', '\bMOD\b issue', 'dirty dozen', 'fat arrow', 'broad arrow', 'CCCP issue']
+    synonyms: ['military', 'military issue', 'dirty dozen', 'fat arrow', 'broad arrow', 'mod issue']
   - tag: skin-diver
     label: Skin diver
     group: character
     rarity: 6
     titleOnly: true
     any: ['skin ?diver', 'super ?compressor', 'bakelite bezel']
+    synonyms: ['skin diver', 'bakelite bezel']
   - tag: ladies
     label: Ladies / cocktail size
     group: character
     rarity: 3
     titleOnly: true
     any: ["lad(?:y|ies)'?s?", '\bfemme\b', 'boy ?size']
+    synonyms: ['ladies', "women's", 'womens', "lady's", 'ladies watch', 'femme']
 
   # --------------------------------------------------------- more bracelets
   - tag: tubogas
@@ -415,26 +522,31 @@ rules:
     group: bracelet
     rarity: 9
     any: ['tubogas', 'tubo gas', 'serpenti']
+    synonyms: ['tubogas', 'tubo gas', 'serpenti bracelet']
   - tag: riveted
     label: Riveted
     group: bracelet
     rarity: 7
     any: ['riveted', 'rivet bracelet', 'folded link']
+    synonyms: ['riveted bracelet', 'rivet bracelet', 'folded link']
   - tag: jubilee
     label: Jubilee
     group: bracelet
     rarity: 3
     any: ['jubilee bracelet']
+    synonyms: ['jubilee bracelet', 'jubilee']
   - tag: president-bracelet
     label: President
     group: bracelet
     rarity: 4
     any: ['president(?:ial)? bracelet', 'presidential style']
+    synonyms: ['president bracelet', 'presidential bracelet']
   - tag: bark-finish
     label: Florentine / bark case
     group: case
     rarity: 7
     any: ['florentine finish', 'bark finish case', 'hammered case', 'martel[eé]']
+    synonyms: ['florentine finish', 'bark case', 'hammered case', 'martele']
 
   # ------------------------------------------------------------- more dials
   - tag: crosshair
@@ -442,31 +554,37 @@ rules:
     group: dial
     rarity: 6
     any: ['cross ?hair', 'crosshair dial']
+    synonyms: ['crosshair', 'crosshair dial', 'cross hair']
   - tag: two-tone-dial
     label: Two-tone / tuxedo
     group: dial
     rarity: 5
     any: ['two[ -]tone dial', 'tuxedo dial', 'panda dial', 'reverse panda']
+    synonyms: ['two-tone dial', 'tuxedo dial', 'panda dial', 'reverse panda']
   - tag: birds-eye
     label: Bird's eye / maple
     group: dial
     rarity: 9
     any: ["bird'?s ?eye", 'maple dial', 'burl']
+    synonyms: ["bird's eye", 'birds eye', 'maple dial', 'burl wood']
   - tag: lacquer
     label: Lacquer / urushi
     group: dial
     rarity: 9
     any: ['urushi', 'lacquer dial', 'maki-?e', 'raden']
+    synonyms: ['urushi', 'lacquer dial', 'maki-e', 'raden']
   - tag: mirror-dial
     label: Mirror / smoked
     group: dial
     rarity: 7
     any: ['mirror dial', 'smoked dial', 'degrade', 'dégradé', 'fume dial']
+    synonyms: ['mirror dial', 'smoked dial', 'degrade dial', 'fume dial']
   - tag: cloisonne
     label: Cloisonné scene
     group: dial
     rarity: 10
     any: ['cloisonn', 'scenic dial', 'map dial']
+    synonyms: ['cloisonne', 'cloisonné', 'scenic dial', 'map dial']
 
   # -------------------------------------------------------- more stone dials
   - tag: tiger-iron
@@ -474,33 +592,40 @@ rules:
     group: dial
     rarity: 10
     any: ["tiger ?iron", "tiger'?s ?iron"]
+    synonyms: ['tiger iron', "tiger's iron"]
   - tag: chrysocolla
     label: Chrysocolla
     group: dial
     rarity: 10
     any: ['chrysocolla', 'chrysoprase']
+    synonyms: ['chrysocolla', 'chrysoprase']
   - tag: pietersite
     label: Pietersite / hawks eye
     group: dial
     rarity: 10
     any: ['pietersite', "hawk'?s ?eye", 'falcon ?eye']
+    synonyms: ['pietersite', "hawk's eye", 'hawks eye', 'falcon eye']
   - tag: amazonite
     label: Amazonite
     group: dial
     rarity: 10
     any: ['amazonite', 'amazon stone']
+    synonyms: ['amazonite', 'amazon stone']
   - tag: rhodonite
     label: Rhodonite
     group: dial
     rarity: 10
     any: ['rhodonite']
+    synonyms: ['rhodonite']
   - tag: unakite
     label: Unakite / serpentine
     group: dial
     rarity: 10
     any: ['unakite', 'serpentine dial']
+    synonyms: ['unakite', 'serpentine dial']
   - tag: petrified-wood
     label: Petrified wood
     group: dial
     rarity: 10
     any: ['petrified wood', 'fossil dial', 'ammonite']
+    synonyms: ['petrified wood', 'fossil dial', 'ammonite']

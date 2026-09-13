@@ -11,12 +11,22 @@ type RuleSpec = {
   any: string[];
   /** Match the title only - see the note in tagsFor. */
   titleOnly?: boolean;
+  /**
+   * Natural-language words/phrases for this tag, used only by the site's
+   * query parser (see web/vocab.ts) - never consulted here.
+   */
+  synonyms?: string[];
 };
 type TaxonomySpec = {
   grails: string[];
   families: Record<string, string[]>;
   groups: Record<string, string>;
   rules: RuleSpec[];
+  /**
+   * Multi-tag natural-language phrases -> tag ids. Query parser only, never
+   * consulted by tagsFor.
+   */
+  phrases?: Record<string, string[]>;
 };
 
 const spec: TaxonomySpec = parse(

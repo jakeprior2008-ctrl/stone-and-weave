@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { KNOWN_BRANDS } from './brands.ts';
 import { isGrail, oddityScore, searchableText, tagsFor } from './enrich.ts';
 import type { Dealer, Listing, RawListing } from './types.ts';
 
@@ -16,16 +17,6 @@ export function toGBP(amount: number, currency: string): number | null {
   const rate = FX_TO_GBP[currency.toUpperCase()];
   return rate ? Math.round(amount * rate) : null;
 }
-
-const KNOWN_BRANDS = [
-  'rolex', 'omega', 'patek philippe', 'audemars piguet', 'cartier', 'piaget',
-  'vacheron constantin', 'jaeger-lecoultre', 'iwc', 'universal geneve', 'longines',
-  'tudor', 'zenith', 'heuer', 'tag heuer', 'breitling', 'seiko', 'grand seiko',
-  'citizen', 'bulova', 'hamilton', 'tissot', 'movado', 'girard-perregaux',
-  'blancpain', 'chopard', 'bulgari', 'van cleef', 'baume', 'eterna', 'doxa',
-  'enicar', 'favre-leuba', 'nivada', 'lip', 'gruen', 'elgin', 'waltham',
-  'jaeger lecoultre', 'breguet', 'glashutte', 'a. lange', 'chronoswiss',
-];
 
 export function detectBrand(text: string, vendor?: string | null): string | null {
   const haystack = text.toLowerCase();
