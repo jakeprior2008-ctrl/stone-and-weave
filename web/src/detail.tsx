@@ -21,7 +21,7 @@ function Spark({ points }: { points: { date: string; amount: number }[] }) {
   return (
     <div class="spark">
       <svg viewBox="0 0 100 30" preserveAspectRatio="none" role="img" aria-label="Price history">
-        <path d={d} fill="none" stroke={fell ? '#6bbf8a' : '#c9a227'} stroke-width="1.5" />
+        <path d={d} fill="none" stroke={fell ? 'var(--green)' : 'var(--accent)'} stroke-width="1.5" />
       </svg>
       <span>
         {points.length} price points · {fell ? 'down' : 'up'} from{' '}
