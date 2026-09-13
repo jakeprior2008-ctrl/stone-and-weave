@@ -29,7 +29,7 @@ export function detectBrand(text: string, vendor?: string | null): string | null
 }
 
 export function detectReference(text: string): string | null {
-  const m = text.match(/\bref(?:erence)?\.?\s*([A-Z0-9][A-Z0-9./-]{2,})/i);
+  const m = text.match(/\bref(?:erence)?(?:\.\s*|:\s*|\s+)((?=[A-Z0-9./-]*\d)[A-Z0-9][A-Z0-9./-]{2,})/i);
   return m ? m[1].replace(/[.,]$/, '') : null;
 }
 

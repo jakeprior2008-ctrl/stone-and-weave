@@ -20,6 +20,14 @@ describe('field extraction', () => {
     expect(detectCaseSize('shipped in a 500mm box')).toBeNull();
   });
 
+  it('does not capture the word "reference" itself when no number follows', () => {
+    expect(detectReference('Reference 9706')).toBe('9706');
+    expect(detectReference('ref. 69178')).toBe('69178');
+    expect(detectReference('a reference to the 1970s')).toBeNull();
+    expect(detectReference('Reference: 3842P')).toBe('3842P');
+    expect(detectReference('Ref.1601')).toBe('1601');
+  });
+
   it('reads an era from a decade or a circa year', () => {
     expect(detectEra('Piaget 1970s Ellipse')).toBe('1970s');
     expect(detectEra('circa 1986 Rolex Datejust')).toBe('1980s');

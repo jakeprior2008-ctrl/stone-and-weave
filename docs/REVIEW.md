@@ -141,6 +141,11 @@ design choice that is fine now and will cost something later.
     `if: failure()` step to the workflow that posts to the ntfy topic, so a
     stalled site is visible without someone checking Actions.
 
+8. **Reference regex captured the word itself.** `detectReference` returned
+   `erence` for copy that mentions "reference" without a number; 1252
+   active listings affected (use the probe's number). Fixed alongside this
+   review.
+
 ## Tests that are missing and would hurt
 
 | Area | Gap |
