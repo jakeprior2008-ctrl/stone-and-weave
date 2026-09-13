@@ -3,7 +3,7 @@
 <p><em>Stone dials, odd weaves, difficult things.</em></p>
 
 <p>
-  <a href="https://stone-and-weave.vercel.app"><strong>Live site →</strong></a>
+  <a href="https://stoneandweave.vercel.app"><strong>Live site →</strong></a>
 </p>
 
 A discovery engine for vintage and obscure watches. It crawls dealer inventories
