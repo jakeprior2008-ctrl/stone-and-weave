@@ -23,6 +23,17 @@ const json = async <T,>(file: string, fallback: T): Promise<T> => {
 
 const LAST_VISIT = 'stone-and-weave:last-visit';
 
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// Removes one understood term's matched text from the raw query so the
+// parse re-runs without it - a case-insensitive, whitespace-collapsing
+// substring removal, since `text` comes from the lowercased, clipped copy
+// of `q` that parse() actually scanned.
+function removeTerm(q: string, text: string): string {
+  const re = new RegExp(escapeRe(text), 'i');
+  return q.replace(re, ' ').replace(/\s+/g, ' ').trim();
+}
+
 export function App() {
   const [listings, setListings] = useState<Listing[] | null>(null);
   const [sold, setSold] = useState<Listing[] | null>(null);
@@ -139,13 +150,37 @@ export function App() {
         </div>
 
         {tab === 'browse' && (
-          <input
-            class="search"
-            type="search"
-            placeholder="malachite, bamboo, Piaget Ellipse…"
-            value={filters.q}
-            onInput={(e) => set({ q: (e.target as HTMLInputElement).value })}
-          />
+          <div class="search-wrap">
+            <input
+              class="search"
+              type="search"
+              placeholder="green stone dial under £3k · 70s Piaget · something like a Cartier Tank"
+              value={filters.q}
+              onInput={(e) => set({ q: (e.target as HTMLInputElement).value })}
+            />
+            {filters.q.trim() && (
+              <div class="parsed">
+                {parsed.understood.map((u, i) => (
+                  <span class={`chip ${u.kind === 'noop' ? 'noop' : ''}`} key={i}>
+                    {u.label}
+                    {u.kind !== 'noop' && (
+                      <button
+                        class="x"
+                        type="button"
+                        aria-label={`Remove "${u.label}" from the search`}
+                        onClick={() => set({ q: removeTerm(filters.q, u.text) })}
+                      >
+                        ×
+                      </button>
+                    )}
+                  </span>
+                ))}
+                {parsed.leftover.trim() && (
+                  <span class="chip free">searching text for: {parsed.leftover}</span>
+                )}
+              </div>
+            )}
+          </div>
         )}
       </header>
 
@@ -203,7 +238,14 @@ export function App() {
               <p class="empty">
                 {filters.pinnedOnly
                   ? 'Nothing pinned yet. Tap ☆ on anything you want to keep an eye on.'
-                  : `Nothing matches. ${filters.tags.length > 0 ? 'Tags combine with AND — try removing one.' : ''}`}
+                  : filters.q.trim()
+                    ? parsed.leftover.trim()
+                      ? `Nothing matches "${filters.q.trim()}". Not understood: ${parsed.leftover
+                          .trim()
+                          .split(/\s+/)
+                          .join(', ')}. Try a stone, a shape, a brand, a price or an era.`
+                      : 'Nothing matches that combination — try removing a chip.'
+                    : `Nothing matches. ${filters.tags.length > 0 ? 'Tags combine with AND — try removing one.' : ''}`}
               </p>
             )}
 

@@ -48,12 +48,30 @@ a { color: inherit; }
 }
 .tabs button.on { color: var(--ink); border-color: var(--line); background: var(--panel); }
 
+.search-wrap { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 6px; }
+
 .search {
-  flex: 1; min-width: 200px;
+  width: 100%;
   background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
   padding: 9px 12px; outline: none;
 }
 .search:focus { border-color: var(--accent); }
+
+.parsed { display: flex; flex-wrap: wrap; gap: 6px; }
+.parsed .chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 999px;
+  padding: 3px 4px 3px 10px; font-size: 11px; color: var(--ink); line-height: 1.4;
+}
+.parsed .chip.noop { color: var(--dim); font-style: italic; }
+.parsed .chip.free { color: var(--dim); border-style: dashed; }
+.parsed .chip .x {
+  background: none; border: none; border-left: 1px solid var(--line);
+  color: var(--dim); cursor: pointer; font-size: 12px; line-height: 1;
+  padding: 3px 8px; border-radius: 0 999px 999px 0; margin-left: 1px;
+}
+.parsed .chip .x:hover { color: var(--ink); background: var(--line); }
+.parsed .chip .x:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 .body { display: flex; align-items: flex-start; gap: 28px; padding: 26px; }
 main { flex: 1; min-width: 0; }
@@ -250,6 +268,7 @@ main { flex: 1; min-width: 0; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
   .drawer { width: 100%; }
   .top { gap: 10px; padding: 10px 12px; }
+  .search-wrap { min-width: 0; }
   .facts { grid-template-columns: 1fr; }
 }
 
