@@ -36,6 +36,10 @@ export type MergeResult = {
  *   consecutive absences to archive one.
  * - Only sources that actually crawled successfully may age their listings.
  *   A source that threw is skipped entirely, so its listings hold steady.
+ * - A sub-1% price wobble in the same currency is FX jitter, not a real
+ *   change (some dealers serve currency-converted prices that drift by a
+ *   euro or two between crawls). It does not get a history point or count
+ *   as a price drop; a currency change or a move of 1% or more still does.
  */
 export function merge(
   existing: Listing[],
@@ -60,9 +64,20 @@ export function merge(
     const today = now.slice(0, 10);
     if (item.price) {
       const last = history.at(-1);
-      if (!last || last.amount !== item.price.amount) {
+      // FX jitter: currency-converted prices can wobble by a euro or two
+      // between crawls with no real change. Ignore sub-1% moves in the same
+      // currency so they don't pollute priceHistory or fire drop alerts.
+      const isJitter =
+        !!last &&
+        last.currency === item.price.currency &&
+        Math.abs(item.price.amount - last.amount) / last.amount < 0.01;
+      const changed =
+        !last ||
+        last.currency !== item.price.currency ||
+        (last.amount !== item.price.amount && !isJitter);
+      if (changed) {
         history.push({ date: today, amount: item.price.amount, currency: item.price.currency });
-        if (last && item.price.amount < last.amount) {
+        if (last && last.currency === item.price.currency && item.price.amount < last.amount) {
           priceDrops.push({ listing: item, from: last.amount, to: item.price.amount });
         }
       }

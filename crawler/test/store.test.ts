@@ -33,6 +33,27 @@ describe('merge', () => {
     expect(listings[0].priceHistory).toHaveLength(2);
   });
 
+  it('ignores sub-1% price jitter', () => {
+    const jittered = listing({
+      price: { amount: 5206, currency: 'GBP' }, priceGBP: 5206,
+      priceHistory: [{ date: '2026-01-01', amount: 5205, currency: 'GBP' }],
+    });
+    const base = listing({
+      price: { amount: 5205, currency: 'GBP' }, priceGBP: 5205,
+      priceHistory: [{ date: '2026-01-01', amount: 5205, currency: 'GBP' }],
+    });
+    const { priceDrops, listings } = merge([base], [jittered], ok, NOW);
+    expect(listings[0].priceHistory).toHaveLength(1);
+    expect(priceDrops).toHaveLength(0);
+  });
+
+  it('records a currency change even if the number is close', () => {
+    const converted = listing({ price: { amount: 100, currency: 'EUR' }, priceGBP: 85 });
+    const { priceDrops, listings } = merge([listing()], [converted], ok, NOW);
+    expect(listings[0].priceHistory).toHaveLength(2);
+    expect(priceDrops).toHaveLength(0);
+  });
+
   it('does not archive on a single absence', () => {
     const { listings, archived } = merge([listing()], [], ok, NOW);
     expect(archived).toHaveLength(0);
