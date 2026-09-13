@@ -85,9 +85,16 @@ design choice that is fine now and will cost something later.
    needs a look rather than a blind fix: prefer a match near the words
    "case", "diameter" or "width", and ignore one near "lug" or "strap".
 
+8. **Reference regex captured the word itself.** `detectReference` returned
+   `erence` for copy that mentions "reference" without a number; 1252
+   active listings affected (use the probe's number). It also polluted
+   `fingerprint`, which uses the reference, so same-watch matching across
+   dealers was weaker than it should be; both correct themselves on the
+   next crawl. Fixed alongside this review.
+
 ## Would do differently
 
-8. **Data growth.** Every crawl rewrites `listings.json` (5.2 MB) and
+9. **Data growth.** Every crawl rewrites `listings.json` (5.2 MB) and
    `sold.json` (9 MB) in full, because `lastSeen` is stamped on every
    listing whether or not it changed.
    **The numbers:** the current blobs pack to roughly 0.9 MB and 1.3 MB as
@@ -107,7 +114,7 @@ design choice that is fine now and will cost something later.
      squashed quarterly. Price history already lives inside each listing,
      so nothing is lost by discarding the branch's own commit history.
 
-9. **Oddity scoring is coherent in intent, patched in mechanism.** The
+10. **Oddity scoring is coherent in intent, patched in mechanism.** The
    `texture` family collapses `textured-dial` (a dial feature),
    `hammered-bracelet` (a bracelet feature) and `bark-finish` (a case
    feature) into a single scored feature. That fix was needed to stop a
@@ -122,7 +129,7 @@ design choice that is fine now and will cost something later.
    this scale but worth a note for later. Keep the model as designed; fix
    the scope of the family collapse.
 
-10. **Module boundaries** are fine for 17 sources; two things will hurt
+11. **Module boundaries** are fine for 17 sources; two things will hurt
     once that grows toward 40.
     - `index.ts` dispatches adapters with a ternary and special-cases eBay
       inline with a fake `adapter: 'shopify'`. Make it a registry keyed on
@@ -136,15 +143,10 @@ design choice that is fine now and will cost something later.
     Everything else, including the two-file crawler/web split and the sold
     archive rules living inside `index.ts`, is acceptable at this size.
 
-11. **Crawl failure is silent.** A failing test or a failing crawl simply
+12. **Crawl failure is silent.** A failing test or a failing crawl simply
     stops updates, and only GitHub Actions knows about it. Add a final
     `if: failure()` step to the workflow that posts to the ntfy topic, so a
     stalled site is visible without someone checking Actions.
-
-8. **Reference regex captured the word itself.** `detectReference` returned
-   `erence` for copy that mentions "reference" without a number; 1252
-   active listings affected (use the probe's number). Fixed alongside this
-   review.
 
 ## Tests that are missing and would hurt
 
