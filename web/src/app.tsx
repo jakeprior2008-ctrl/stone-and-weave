@@ -7,6 +7,7 @@ import { Rail } from './rail.tsx';
 import { apply, fromQuery, toQuery, type Filters } from './filters.ts';
 import { loadPins, togglePin } from './pins.ts';
 import { parse } from './parse.ts';
+import { similar } from './similar.ts';
 import type { Hunt, Listing, SourceMeta, Taxonomy } from './types.ts';
 import vocab from 'virtual:vocab';
 
@@ -74,6 +75,11 @@ export function App() {
   const corpus = useMemo(
     () => ((filters.includeSold || filters.pinnedOnly) && sold ? [...(listings ?? []), ...sold] : listings),
     [listings, sold, filters.includeSold, filters.pinnedOnly],
+  );
+
+  const rarityMap = useMemo(
+    () => new Map(taxonomy.tags.map((t) => [t.tag, t.rarity])),
+    [taxonomy],
   );
 
   const index = useMemo(() => {
@@ -227,6 +233,8 @@ export function App() {
           related={(listings ?? []).filter(
             (l) => l.fingerprint === selected.fingerprint && l.id !== selected.id,
           )}
+          similar={similar(selected, listings ?? [], rarityMap).map((s) => s.listing)}
+          onOpen={setSelected}
           onClose={() => setSelected(null)}
         />
       )}

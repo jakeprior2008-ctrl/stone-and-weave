@@ -1,5 +1,5 @@
 import { useEffect } from 'preact/hooks';
-import { money } from './card.tsx';
+import { money, thumb } from './card.tsx';
 import { daysListed } from './filters.ts';
 import type { Listing } from './types.ts';
 
@@ -34,10 +34,14 @@ function Spark({ points }: { points: { date: string; amount: number }[] }) {
 export function Detail({
   listing,
   related,
+  similar,
+  onOpen,
   onClose,
 }: {
   listing: Listing;
   related: Listing[];
+  similar: Listing[];
+  onOpen: (l: Listing) => void;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -104,6 +108,30 @@ export function Detail({
         <a class="cta" href={listing.url} target="_blank" rel="noopener noreferrer">
           View at {listing.sourceName} ↗
         </a>
+
+        {similar.length > 0 && (
+          <section class="similar">
+            <h4>More like this</h4>
+            <div class="similar-row">
+              {similar.map((l) => (
+                <button class="similar-card" key={l.id} onClick={() => onOpen(l)}>
+                  <div class="similar-thumb">
+                    {l.images[0] ? (
+                      <img src={thumb(l.images[0], 300)} alt={l.title} loading="lazy" decoding="async" />
+                    ) : (
+                      <div class="noimg">no image</div>
+                    )}
+                  </div>
+                  <div class="similar-title">{l.title}</div>
+                  <div class="similar-line">
+                    <span>{money(l)}</span>
+                    <span class="dealer">{l.sourceName}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
       </aside>
     </div>
   );
