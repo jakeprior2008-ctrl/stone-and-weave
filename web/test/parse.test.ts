@@ -24,7 +24,7 @@ const cases: Case[] = [
   {
     q: 'gold dress watch with a green stone dial under £3,000',
     patch: { maxPrice: 3000, anyTags: [GREEN_STONES] },
-    leftover: 'gold dress dial',
+    leftover: 'gold dress',
   },
   {
     q: 'something like a Piaget Ellipse but cheaper',
@@ -48,7 +48,7 @@ const cases: Case[] = [
   {
     q: 'blue stone dial over 5k',
     patch: { minPrice: 5000, anyTags: [BLUE_STONES] },
-    leftover: 'dial',
+    leftover: '',
   },
   { q: 'tiger eye', patch: { anyTags: [['tigers-eye']] }, leftover: '' },
   { q: "tiger's eye", patch: { anyTags: [['tigers-eye']] }, leftover: '' },

@@ -34,6 +34,20 @@ function removeTerm(q: string, text: string): string {
   return q.replace(re, ' ').replace(/\s+/g, ' ').trim();
 }
 
+// Same, but for a single leftover word: bounded so removing "gold" never
+// eats part of a longer word it happens to be a substring of.
+function removeWord(q: string, word: string): string {
+  const re = new RegExp(String.raw`\b${escapeRe(word)}\b`, 'i');
+  return q.replace(re, ' ').replace(/\s+/g, ' ').trim();
+}
+
+// "gold", "dress" and "dial" - quoted, comma-separated, no Oxford comma.
+function quoteList(words: string[]): string {
+  const quoted = words.map((w) => `"${w}"`);
+  if (quoted.length <= 1) return quoted.join('');
+  return `${quoted.slice(0, -1).join(', ')} and ${quoted.at(-1)}`;
+}
+
 export function App() {
   const [listings, setListings] = useState<Listing[] | null>(null);
   const [sold, setSold] = useState<Listing[] | null>(null);
@@ -124,6 +138,29 @@ export function App() {
     [corpus, effectiveFilters, matchedIds, pins],
   );
 
+  const leftoverWords = useMemo(
+    () => (parsed.leftover.trim() ? parsed.leftover.trim().split(/\s+/) : []),
+    [parsed.leftover],
+  );
+
+  // Per leftover word: whether the text index finds it *anywhere* in the
+  // corpus at all, independent of the other filters. Zero hits means the
+  // word itself is not understood by the index (not just "no match here");
+  // a hit elsewhere means it was searched, even if this particular
+  // combination came up empty.
+  const wordHits = useMemo(() => {
+    if (!index || leftoverWords.length === 0) return null;
+    return leftoverWords.map((w) => index.search(w).length > 0);
+  }, [index, leftoverWords]);
+
+  // What the chips alone (price/era/tags/brand/etc, no text index) match -
+  // used to tell "the chips are fine, the extra words just don't fit" apart
+  // from "even the chips alone match nothing".
+  const chipsOnlyCount = useMemo(
+    () => (corpus ? apply(corpus, effectiveFilters, null, pins).length : 0),
+    [corpus, effectiveFilters, pins],
+  );
+
   const freshCount = useMemo(
     () => (lastVisit && listings ? listings.filter((l) => l.firstSeen > lastVisit).length : 0),
     [lastVisit, listings],
@@ -175,8 +212,23 @@ export function App() {
                     )}
                   </span>
                 ))}
-                {parsed.leftover.trim() && (
-                  <span class="chip free">searching text for: {parsed.leftover}</span>
+                {leftoverWords.length > 0 && (
+                  <>
+                    <span class="chip-label">text:</span>
+                    {leftoverWords.map((word, i) => (
+                      <span class="chip free" key={`free-${i}`}>
+                        {word}
+                        <button
+                          class="x"
+                          type="button"
+                          aria-label={`Remove "${word}" from the search`}
+                          onClick={() => set({ q: removeWord(filters.q, word) })}
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </>
                 )}
               </div>
             )}
@@ -239,11 +291,25 @@ export function App() {
                 {filters.pinnedOnly
                   ? 'Nothing pinned yet. Tap ☆ on anything you want to keep an eye on.'
                   : filters.q.trim()
-                    ? parsed.leftover.trim()
-                      ? `Nothing matches "${filters.q.trim()}". Not understood: ${parsed.leftover
-                          .trim()
-                          .split(/\s+/)
-                          .join(', ')}. Try a stone, a shape, a brand, a price or an era.`
+                    ? leftoverWords.length > 0
+                      ? (() => {
+                          const searched = wordHits
+                            ? leftoverWords.filter((_, i) => wordHits[i])
+                            : leftoverWords;
+                          const notUnderstood = wordHits
+                            ? leftoverWords.filter((_, i) => !wordHits[i])
+                            : [];
+                          const chipsClause =
+                            chipsOnlyCount === 0
+                              ? 'The chips alone match nothing — try removing a chip.'
+                              : `The chips alone match ${chipsOnlyCount.toLocaleString()} watch${
+                                  chipsOnlyCount === 1 ? '' : 'es'
+                                }${searched.length ? `, but none also mention ${quoteList(searched)}.` : '.'}`;
+                          const notUnderstoodClause = notUnderstood.length
+                            ? ` Not understood: ${notUnderstood.join(', ')}.`
+                            : '';
+                          return `Nothing matches. ${chipsClause}${notUnderstoodClause} Remove a word or a chip.`;
+                        })()
                       : 'Nothing matches that combination — try removing a chip.'
                     : `Nothing matches. ${filters.tags.length > 0 ? 'Tags combine with AND — try removing one.' : ''}`}
               </p>

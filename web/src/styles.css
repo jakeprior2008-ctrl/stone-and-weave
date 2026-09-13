@@ -57,7 +57,8 @@ a { color: inherit; }
 }
 .search:focus { border-color: var(--accent); }
 
-.parsed { display: flex; flex-wrap: wrap; gap: 6px; }
+.parsed { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.parsed .chip-label { color: var(--dim); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; }
 .parsed .chip {
   display: inline-flex; align-items: center; gap: 4px;
   background: var(--panel); border: 1px solid var(--line); border-radius: 999px;

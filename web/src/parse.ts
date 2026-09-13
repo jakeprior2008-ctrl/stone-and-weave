@@ -22,9 +22,11 @@ export type Parsed = {
 // exactly like "and", and dropping it is needed to get "something like a
 // Piaget Ellipse but cheaper" down to the leftover "cheaper" the product
 // owner asked for, rather than "but cheaper".
+// "dial" is in nearly every listing's text, so it only ever narrows the text
+// index by accident - never a meaningful search term on its own.
 const STOPWORDS = new Set([
   'a', 'an', 'the', 'with', 'and', 'but', 'something', 'like', 'watch', 'watches',
-  'please', 'for', 'me', 'i', 'want', 'in', 'of',
+  'please', 'for', 'me', 'i', 'want', 'in', 'of', 'dial',
 ]);
 
 const MAX_LEN = 200;
