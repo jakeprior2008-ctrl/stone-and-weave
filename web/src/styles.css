@@ -259,3 +259,28 @@ main { flex: 1; min-width: 0; }
 .sold-switch small { grid-column: 2; color: var(--dim); font-size: 11px; }
 .card.sold .thumb img { opacity: 0.48; filter: saturate(0.6); }
 .sold-badge { right: 7px; background: #3a3430; color: var(--dim); }
+
+/* Pinned selections */
+.pin-switch {
+  display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; align-items: center;
+  background: linear-gradient(180deg, rgba(107, 191, 138, 0.1), transparent);
+  border: 1px solid rgba(107, 191, 138, 0.34);
+  border-radius: 8px; padding: 10px; margin-bottom: 12px; cursor: pointer;
+}
+.pin-switch input { accent-color: var(--green); }
+.pin-switch span { font-weight: 600; }
+.pin-switch small { grid-column: 2; color: var(--dim); font-size: 11px; }
+
+.card .pin {
+  position: absolute; bottom: 7px; right: 7px;
+  width: 28px; height: 28px; padding: 0; line-height: 26px;
+  border-radius: 50%; cursor: pointer; font-size: 15px;
+  background: rgba(13, 12, 11, 0.72); border: 1px solid var(--line);
+  color: var(--dim); backdrop-filter: blur(4px);
+  opacity: 0; transition: opacity 0.15s, color 0.15s, transform 0.1s;
+}
+.card:hover .pin, .card .pin.on, .card .pin:focus-visible { opacity: 1; }
+.card .pin:hover { color: var(--gold); transform: scale(1.12); }
+.card .pin.on { color: var(--grail); border-color: rgba(212, 175, 55, 0.5); }
+/* Touch devices have no hover, so the control must always be reachable. */
+@media (hover: none) { .card .pin { opacity: 1; } }

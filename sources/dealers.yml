@@ -51,6 +51,41 @@ dealers:
     instagram: craftandtailored
     priority: 1
 
+  - id: bulangandsons
+    name: Bulang and Sons
+    url: https://www.bulangandsons.com
+    adapter: shopify
+    currency: EUR
+    region: DE
+    instagram: bulangandsons
+    priority: 1
+
+  - id: somlo
+    name: Somlo London
+    url: https://www.somlo.com
+    adapter: shopify
+    currency: GBP
+    region: UK
+    priority: 2
+    notes: Antique and unusual dress watches, Burlington Arcade.
+
+  - id: mrwatchley
+    name: Mr Watchley
+    url: https://www.mrwatchley.com
+    adapter: shopify
+    currency: EUR
+    region: EU
+    priority: 2
+
+  - id: vintagewatchspecialist
+    name: Vintage Watch Specialist
+    url: https://www.vintagewatchspecialist.com
+    adapter: shopify
+    currency: GBP
+    region: UK
+    instagram: vintagewatchspecialist
+    priority: 2
+
   - id: thekeystone
     name: The Keystone
     url: https://www.thekeystone.com
@@ -141,4 +176,8 @@ excluded:
   - { url: https://grymrkt.co, reason: 'auction house, no product feed - link-out only' }
   - { url: https://www.dadandson-watches.com, reason: 'Squarespace gallery site, sells by enquiry - no product pages. In the Hunt tab.' }
   - { url: https://www.hodinkee.com, reason: 'no products.json' }
+  - { url: https://www.strapcode.com, reason: 'Shopify, but straps and bracelets only - no watches' }
+  - { url: https://www.watchesofknightsbridge.com, reason: 'HTTP 202 challenge page' }
+  - { url: https://vintagegoldwatches.com, reason: 'HTTP 403, anti-bot' }
+  - { url: https://www.timepiecetrading.co.uk, reason: 'no product feed' }
   - { url: https://www.windvintage.com, reason: 'no products.json' }

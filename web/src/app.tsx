@@ -5,6 +5,7 @@ import { Detail } from './detail.tsx';
 import { Hunt as HuntTab } from './hunt.tsx';
 import { Rail } from './rail.tsx';
 import { apply, fromQuery, toQuery, type Filters } from './filters.ts';
+import { loadPins, togglePin } from './pins.ts';
 import type { Hunt, Listing, SourceMeta, Taxonomy } from './types.ts';
 
 const base = import.meta.env.BASE_URL;
@@ -30,6 +31,7 @@ export function App() {
   const [selected, setSelected] = useState<Listing | null>(null);
   const [tab, setTab] = useState<'browse' | 'hunt'>('browse');
   const [railOpen, setRailOpen] = useState(false);
+  const [pins, setPins] = useState<Set<string>>(() => loadPins());
   const [lastVisit] = useState<string | null>(() => {
     try {
       return localStorage.getItem(LAST_VISIT);
@@ -53,13 +55,14 @@ export function App() {
   // The sold archive is a separate megabyte-scale file, so it is fetched once,
   // and only if you actually ask to see it.
   useEffect(() => {
-    if (!filters.includeSold || sold !== null || loadingSold) return;
+    const needsArchive = filters.includeSold || (filters.pinnedOnly && pins.size > 0);
+    if (!needsArchive || sold !== null || loadingSold) return;
     setLoadingSold(true);
     json<Listing[]>('sold.json', []).then((s) => {
       setSold(s);
       setLoadingSold(false);
     });
-  }, [filters.includeSold, sold, loadingSold]);
+  }, [filters.includeSold, filters.pinnedOnly, pins.size, sold, loadingSold]);
 
   useEffect(() => {
     const q = toQuery(filters);
@@ -67,8 +70,8 @@ export function App() {
   }, [filters]);
 
   const corpus = useMemo(
-    () => (filters.includeSold && sold ? [...(listings ?? []), ...sold] : listings),
-    [listings, sold, filters.includeSold],
+    () => ((filters.includeSold || filters.pinnedOnly) && sold ? [...(listings ?? []), ...sold] : listings),
+    [listings, sold, filters.includeSold, filters.pinnedOnly],
   );
 
   const index = useMemo(() => {
@@ -90,8 +93,8 @@ export function App() {
   }, [index, filters.q]);
 
   const results = useMemo(
-    () => (corpus ? apply(corpus, filters, matchedIds) : []),
-    [corpus, filters, matchedIds],
+    () => (corpus ? apply(corpus, filters, matchedIds, pins) : []),
+    [corpus, filters, matchedIds, pins],
   );
 
   const freshCount = useMemo(
@@ -146,6 +149,7 @@ export function App() {
             taxonomy={taxonomy}
             listings={corpus ?? []}
             meta={meta}
+            pinCount={pins.size}
           />
 
           <main>
@@ -181,13 +185,22 @@ export function App() {
 
             {listings !== null && !loadingSold && results.length === 0 && (
               <p class="empty">
-                Nothing matches. {filters.tags.length > 0 && 'Tags combine with AND — try removing one.'}
+                {filters.pinnedOnly
+                  ? 'Nothing pinned yet. Tap ☆ on anything you want to keep an eye on.'
+                  : `Nothing matches. ${filters.tags.length > 0 ? 'Tags combine with AND — try removing one.' : ''}`}
               </p>
             )}
 
             <div class="grid">
               {results.slice(0, 600).map((l) => (
-                <Card key={l.id} listing={l} isNew={!!lastVisit && l.firstSeen > lastVisit} onOpen={setSelected} />
+                <Card
+                  key={l.id}
+                  listing={l}
+                  isNew={!!lastVisit && l.firstSeen > lastVisit}
+                  pinned={pins.has(l.id)}
+                  onPin={(id) => setPins((p) => togglePin(p, id))}
+                  onOpen={setSelected}
+                />
               ))}
             </div>
 

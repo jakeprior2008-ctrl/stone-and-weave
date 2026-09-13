@@ -13,13 +13,14 @@ export type Filters = {
   maxCase: number | null;
   minOddity: number;
   grailsOnly: boolean;
+  pinnedOnly: boolean;
   includeSold: boolean;
   sort: Sort;
 };
 
 export const EMPTY: Filters = {
   q: '', tags: [], sources: [], eras: [], minPrice: null, maxPrice: null,
-  minCase: null, maxCase: null, minOddity: 0, grailsOnly: false, includeSold: false, sort: 'oddity',
+  minCase: null, maxCase: null, minOddity: 0, grailsOnly: false, pinnedOnly: false, includeSold: false, sort: 'oddity',
 };
 
 /** Filter state lives in the URL so a hunt can be bookmarked and shared. */
@@ -35,6 +36,7 @@ export function toQuery(f: Filters): string {
   if (f.maxCase !== null) p.set('cmax', String(f.maxCase));
   if (f.minOddity > 0) p.set('odd', String(f.minOddity));
   if (f.grailsOnly) p.set('grail', '1');
+  if (f.pinnedOnly) p.set('pinned', '1');
   if (f.includeSold) p.set('sold', '1');
   if (f.sort !== 'oddity') p.set('sort', f.sort);
   return p.toString();
@@ -54,6 +56,7 @@ export function fromQuery(search: string): Filters {
     minCase: num('cmin'), maxCase: num('cmax'),
     minOddity: num('odd') ?? 0,
     grailsOnly: p.get('grail') === '1',
+    pinnedOnly: p.get('pinned') === '1',
     includeSold: p.get('sold') === '1',
     sort: (p.get('sort') as Sort) ?? 'oddity',
   };
@@ -69,10 +72,18 @@ const dropPct = (l: Listing) => {
 export const daysListed = (l: Listing) =>
   Math.floor((Date.now() - new Date(l.firstSeen).getTime()) / 86_400_000);
 
-export function apply(listings: Listing[], f: Filters, matchedIds: Set<string> | null): Listing[] {
+export function apply(
+  listings: Listing[],
+  f: Filters,
+  matchedIds: Set<string> | null,
+  pins: Set<string> = new Set(),
+): Listing[] {
   const out = listings.filter((l) => {
     if (matchedIds && !matchedIds.has(l.id)) return false;
-    if (!f.includeSold && !l.available) return false;
+    if (f.pinnedOnly && !pins.has(l.id)) return false;
+    // A pinned piece stays visible even once it sells - that is the point of a
+    // shortlist, and losing one silently would be worse than showing it sold.
+    if (!f.includeSold && !l.available && !pins.has(l.id)) return false;
     if (f.grailsOnly && !l.grail) return false;
     // Every selected tag must be present - filters narrow, they don't widen.
     if (f.tags.length && !f.tags.every((t) => l.tags.includes(t))) return false;

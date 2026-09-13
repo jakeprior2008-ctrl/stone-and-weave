@@ -29,10 +29,14 @@ export const money = (l: Listing) =>
 export function Card({
   listing,
   isNew,
+  pinned,
+  onPin,
   onOpen,
 }: {
   listing: Listing;
   isNew: boolean;
+  pinned: boolean;
+  onPin: (id: string) => void;
   onOpen: (l: Listing) => void;
 }) {
   const drop = dropPct(listing);
@@ -50,6 +54,18 @@ export function Card({
         {isNew && !listing.grail && <span class="badge new-badge">new</span>}
         {drop >= 3 && listing.available && <span class="badge drop-badge">−{Math.round(drop)}%</span>}
         {!listing.available && <span class="badge sold-badge">sold</span>}
+        <button
+          class={`pin${pinned ? ' on' : ''}`}
+          title={pinned ? 'Remove from your selections' : 'Pin to your selections'}
+          aria-label={pinned ? 'Unpin' : 'Pin'}
+          aria-pressed={pinned}
+          onClick={(e) => {
+            e.stopPropagation();
+            onPin(listing.id);
+          }}
+        >
+          {pinned ? '★' : '☆'}
+        </button>
       </div>
 
       <div class="info">

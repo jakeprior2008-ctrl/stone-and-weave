@@ -12,7 +12,10 @@
 # Grail tags: an outright drop-everything hit. Scored above ordinary rarity and
 # badged in the UI. Jake's standing order: feather and coral dials are the best
 # there is, stone dials and odd weaves right behind.
-grails: [feather-dial, coral, malachite, lapis-lazuli, tigers-eye, rhodochrosite, jasper, tortoise-shell]
+grails: [feather-dial, coral, malachite, lapis-lazuli, tigers-eye, rhodochrosite,
+         jasper, tortoise-shell, tiger-iron, chrysocolla, pietersite, amazonite,
+         rhodonite, unakite, petrified-wood, cloisonne, mystery-dial, lacquer,
+         prototype, birds-eye]
 
 # Families: tags describing one physical feature. Only the rarest tag in a
 # family scores, so a lapis dial is not paid twice for also being a stone dial,
@@ -20,8 +23,9 @@ grails: [feather-dial, coral, malachite, lapis-lazuli, tigers-eye, rhodochrosite
 families:
   stone: [stone-dial, malachite, lapis-lazuli, tigers-eye, onyx, jade, opal, coral,
           turquoise, rhodochrosite, sodalite, bloodstone, obsidian, agate, jasper,
-          aventurine, meteorite, tortoise-shell]
-  texture: [textured-dial, hammered-bracelet, bark-bracelet]
+          aventurine, meteorite, tortoise-shell, tiger-iron, chrysocolla,
+          pietersite, amazonite, rhodonite, unakite, petrified-wood]
+  texture: [textured-dial, hammered-bracelet, bark-bracelet, bark-finish]
 
 groups:
   dial: Dial
@@ -303,11 +307,13 @@ rules:
     label: Cocktail watch
     group: character
     rarity: 7
+    titleOnly: true
     any: ['cocktail']
   - tag: jewellery-watch
     label: Jewellery piece
     group: character
     rarity: 6
+    titleOnly: true
     any: ['jewell?ery watch', 'bracelet watch', 'bangle watch', 'cuff watch']
   - tag: small-size
     label: Small / unisex
@@ -318,9 +324,183 @@ rules:
     label: NOS / unworn
     group: character
     rarity: 6
+    titleOnly: true
     any: ['\bNOS\b', 'new old stock', 'unworn', 'old stock']
   - tag: full-set
     label: Full set
     group: character
     rarity: 4
+    titleOnly: true
     any: ['full set', 'box and papers', 'original papers', 'w/ original']
+
+  # ------------------------------------------------- complications & oddities
+  # Beyond the dial-and-bracelet vocabulary: watches that are strange in what
+  # they DO, or in who made them, rather than what they are made of.
+  - tag: jump-hour
+    label: Jump hour
+    group: character
+    rarity: 9
+    titleOnly: true
+    any: ['jump(ing)? hour', 'direct[ - ]?read', 'digital display', 'wandering hour']
+  - tag: mystery-dial
+    label: Mystery dial
+    group: dial
+    rarity: 10
+    titleOnly: true
+    any: ['mystery dial', 'mysterieuse', 'floating hands?']
+  - tag: world-time
+    label: World time
+    group: character
+    rarity: 7
+    titleOnly: true
+    any: ['world ?time', 'worldtimer', 'heure universelle']
+  - tag: alarm
+    label: Alarm
+    group: character
+    rarity: 6
+    titleOnly: true
+    any: ['\balarm\b', 'memovox', 'cricket', 'wrist alarm']
+  - tag: moonphase
+    label: Moonphase
+    group: character
+    rarity: 6
+    titleOnly: true
+    any: ['moon ?phase', 'triple calendar', 'complete calendar', 'quantieme']
+  - tag: doctors-watch
+    label: Doctor's / pulsation
+    group: character
+    rarity: 8
+    titleOnly: true
+    any: ["doctor'?s watch", 'pulsation', 'pulsometer', 'asthmometer', 'telemeter']
+  - tag: unsigned
+    label: Unsigned / anonymous
+    group: character
+    rarity: 8
+    titleOnly: true
+    any: ['unsigned', 'anonymous dial', 'no brand', 'unbranded']
+  - tag: double-signed
+    label: Double signed
+    group: dial
+    rarity: 9
+    titleOnly: true
+    any: ['double[ -]signed', 'retailer signed', 'tiffany & co\.? dial', 'signed tiffany', 'cartier signed', 'serpico', 'hausmann', 'beyer']
+  - tag: prototype
+    label: Prototype / one-off
+    group: character
+    rarity: 10
+    titleOnly: true
+    any: ['\\bprototype\\b', 'pièce unique', 'pi[eè]ce unique', 'never released', 'pre-?production']
+  - tag: military
+    label: Military issue
+    group: character
+    rarity: 7
+    titleOnly: true
+    any: ['military issue', 'issued to', '\bW10\b', '\bMOD\b issue', 'dirty dozen', 'fat arrow', 'broad arrow', 'CCCP issue']
+  - tag: skin-diver
+    label: Skin diver
+    group: character
+    rarity: 6
+    titleOnly: true
+    any: ['skin ?diver', 'super ?compressor', 'bakelite bezel']
+  - tag: ladies
+    label: Ladies / cocktail size
+    group: character
+    rarity: 3
+    titleOnly: true
+    any: ["lad(?:y|ies)'?s?", '\bfemme\b', 'boy ?size']
+
+  # --------------------------------------------------------- more bracelets
+  - tag: tubogas
+    label: Tubogas
+    group: bracelet
+    rarity: 9
+    any: ['tubogas', 'tubo gas', 'serpenti']
+  - tag: riveted
+    label: Riveted
+    group: bracelet
+    rarity: 7
+    any: ['riveted', 'rivet bracelet', 'folded link']
+  - tag: jubilee
+    label: Jubilee
+    group: bracelet
+    rarity: 3
+    any: ['jubilee bracelet']
+  - tag: president-bracelet
+    label: President
+    group: bracelet
+    rarity: 4
+    any: ['president(?:ial)? bracelet', 'presidential style']
+  - tag: bark-finish
+    label: Florentine / bark case
+    group: case
+    rarity: 7
+    any: ['florentine finish', 'bark finish case', 'hammered case', 'martel[eé]']
+
+  # ------------------------------------------------------------- more dials
+  - tag: crosshair
+    label: Crosshair
+    group: dial
+    rarity: 6
+    any: ['cross ?hair', 'crosshair dial']
+  - tag: two-tone-dial
+    label: Two-tone / tuxedo
+    group: dial
+    rarity: 5
+    any: ['two[ -]tone dial', 'tuxedo dial', 'panda dial', 'reverse panda']
+  - tag: birds-eye
+    label: Bird's eye / maple
+    group: dial
+    rarity: 9
+    any: ["bird'?s ?eye", 'maple dial', 'burl']
+  - tag: lacquer
+    label: Lacquer / urushi
+    group: dial
+    rarity: 9
+    any: ['urushi', 'lacquer dial', 'maki-?e', 'raden']
+  - tag: mirror-dial
+    label: Mirror / smoked
+    group: dial
+    rarity: 7
+    any: ['mirror dial', 'smoked dial', 'degrade', 'dégradé', 'fume dial']
+  - tag: cloisonne
+    label: Cloisonné scene
+    group: dial
+    rarity: 10
+    any: ['cloisonn', 'scenic dial', 'map dial']
+
+  # -------------------------------------------------------- more stone dials
+  - tag: tiger-iron
+    label: Tiger iron
+    group: dial
+    rarity: 10
+    any: ["tiger ?iron", "tiger'?s ?iron"]
+  - tag: chrysocolla
+    label: Chrysocolla
+    group: dial
+    rarity: 10
+    any: ['chrysocolla', 'chrysoprase']
+  - tag: pietersite
+    label: Pietersite / hawks eye
+    group: dial
+    rarity: 10
+    any: ['pietersite', "hawk'?s ?eye", 'falcon ?eye']
+  - tag: amazonite
+    label: Amazonite
+    group: dial
+    rarity: 10
+    any: ['amazonite', 'amazon stone']
+  - tag: rhodonite
+    label: Rhodonite
+    group: dial
+    rarity: 10
+    any: ['rhodonite']
+  - tag: unakite
+    label: Unakite / serpentine
+    group: dial
+    rarity: 10
+    any: ['unakite', 'serpentine dial']
+  - tag: petrified-wood
+    label: Petrified wood
+    group: dial
+    rarity: 10
+    any: ['petrified wood', 'fossil dial', 'ammonite']

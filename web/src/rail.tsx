@@ -12,6 +12,7 @@ export function Rail({
   taxonomy,
   listings,
   meta,
+  pinCount,
 }: {
   open: boolean;
   filters: Filters;
@@ -19,6 +20,7 @@ export function Rail({
   taxonomy: Taxonomy;
   listings: Listing[];
   meta: SourceMeta[];
+  pinCount: number;
 }) {
   // Counts make the rail honest: you can see there are 12 malachites before clicking.
   const counts = useMemo(() => {
@@ -48,6 +50,7 @@ export function Rail({
   const active =
     filters.tags.length + filters.sources.length + filters.eras.length > 0 ||
     filters.grailsOnly ||
+    filters.pinnedOnly ||
     filters.includeSold ||
     filters.minOddity > 0 ||
     filters.minPrice !== null ||
@@ -65,6 +68,16 @@ export function Rail({
         />
         <span>Grails only</span>
         <small>feather, coral, stone</small>
+      </label>
+
+      <label class="pin-switch">
+        <input
+          type="checkbox"
+          checked={filters.pinnedOnly}
+          onChange={(e) => set({ pinnedOnly: (e.target as HTMLInputElement).checked })}
+        />
+        <span>★ My selections</span>
+        <small>{pinCount === 0 ? 'nothing pinned yet' : `${pinCount} pinned`}</small>
       </label>
 
       <label class="sold-switch">
@@ -170,7 +183,8 @@ export function Rail({
           class="clear"
           onClick={() =>
             set({
-              tags: [], sources: [], eras: [], grailsOnly: false, includeSold: false, minOddity: 0,
+              tags: [], sources: [], eras: [], grailsOnly: false, pinnedOnly: false,
+              includeSold: false, minOddity: 0,
               minPrice: null, maxPrice: null, minCase: null, maxCase: null,
             })
           }

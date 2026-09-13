@@ -3,7 +3,15 @@ import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
 import type { Tag } from './types.ts';
 
-type RuleSpec = { tag: string; label: string; group: string; rarity: number; any: string[] };
+type RuleSpec = {
+  tag: string;
+  label: string;
+  group: string;
+  rarity: number;
+  any: string[];
+  /** Match the title only - see the note in tagsFor. */
+  titleOnly?: boolean;
+};
 type TaxonomySpec = {
   grails: string[];
   families: Record<string, string[]>;
@@ -46,20 +54,47 @@ export function searchableText(title: string, description: string, url: string):
 const STONE_TAGS = spec.families?.stone ?? [];
 
 /**
- * Books, straps, winders and watch rolls are stock too, but they are not
- * watches and a Rolex encyclopaedia listing every dial variant scores as a
- * grail. Conservative on purpose: only unambiguous accessory wording.
+ * Dealers stock plenty that is not a watch: cufflinks, earrings, lighters,
+ * desk clocks, paperweights, reference books. A third of one crawl was this,
+ * and lapis cufflinks were scoring as grails.
+ *
+ * Two tiers, because the words behave differently:
+ *
+ * 1. Objects that are never a watch, whatever else the title says. A Rolex
+ *    reference book names half the catalogue, so model names cannot rescue it.
+ * 2. Jewellery *forms*, which are fine when the piece also tells the time. A
+ *    pendant watch, brooch watch or sautoir timepiece is squarely on-taste; a
+ *    pendant that is only a pendant is not.
  */
+const HARD_OBJECT =
+  /\b(cuff ?links?|cufflinks?|earrings?|ear ?clips?|tie ?(?:clip|bar|pin)s?|money ?clip|lighters?|pill ?box|cigarette case|key ?ring|keychain|fountain pen|ballpoint|paperweight|letter opener|desk clock|table clock|wall clock|mantel clock|corkscrew|bottle opener|shoe ?horn|figurine|objet|books?|magazines?|catalogues?|encyclopedia|posters?|watch roll|watch winder|watch box|storage case|gift card|spring bars?|polishing cloth|loupe|strap only|bracelet only)\b/i;
+
+/** Jewellery forms - only disqualifying when nothing says it tells the time. */
+const JEWELLERY =
+  /\b(rings?|bangles?|necklaces?|pendants?|brooch(?:es)?|sautoir|choker|charms?|bracelets?|bands?)\b/i;
+
+/** Any sign the thing is a watch, model names included. */
+const TELLS_TIME =
+  /\b(watch|watches|wristwatch|timepiece|chronograph|chronometre|chronometer|montre|calibre|caliber|automatic|manual wind|hand wind|jump hour|moonphase|reloj|orologio|datejust|day-?date|seamaster|speedmaster|constellation|oyster ?(?:perpetual|quartz)|cellini|ellipse|polo|santos|tank|reverso|royal oak|nautilus)\b/i;
+
 export function looksLikeAccessory(title: string): boolean {
-  return /\b(books?|magazines?|catalogues?|encyclopedia|posters?|watch roll|watch winder|watch box|storage case|gift card|spring bars?|polishing cloth|loupe)\b/i.test(
-    title,
-  );
+  if (HARD_OBJECT.test(title)) return true;
+  return JEWELLERY.test(title) && !TELLS_TIME.test(title);
 }
 
+/**
+ * Some claims cannot be read from sales copy. Dealer prose is full of "a unique
+ * piece of history" and "issued to celebrate", which tagged 291 ordinary
+ * watches as prototypes and 366 as military issue. Rules marked titleOnly are
+ * matched against the title alone, where a dealer states what a watch IS
+ * rather than how it makes you feel. Materials stay full-text, because a
+ * malachite dial is often only mentioned in the description.
+ */
 export function tagsFor(text: string, title?: string): string[] {
   const found: string[] = [];
   for (const rule of compiled) {
-    if (rule.patterns.some((p) => p.test(text))) found.push(rule.tag);
+    const haystack = rule.titleOnly ? (title ?? text) : text;
+    if (rule.patterns.some((p) => p.test(haystack))) found.push(rule.tag);
   }
   return withStoneRules(found, title);
 }

@@ -97,6 +97,38 @@ describe('accessories and catalogue copy', () => {
     expect(looksLikeAccessory('Rolex Datejust 26mm Onyx Stone Dial')).toBe(false);
   });
 
+  it('drops jewellery and objets, which were a third of the crawl', () => {
+    for (const t of [
+      'Tiffany & Co Yellow Gold and Lapis Cufflinks (Objet)',
+      'Damiani D. Side 18K Yellow Gold Diamond & Malachite Drop Earrings',
+      'Konstantino Sterling Silver Tiger\'s Eye Cross Necklace',
+      'Windproof Zippo Space Shuttle Lighter',
+      'Cartier Sterling Silver Letter Opener',
+      'Vacheron Constantin Cufflinks & Tie Bar Set - Platinum',
+    ]) {
+      expect(looksLikeAccessory(t), t).toBe(true);
+    }
+  });
+
+  it('keeps jewellery-form pieces that are actually watches', () => {
+    // Jake's taste runs to these: the form is jewellery, the object is a watch.
+    for (const t of [
+      'Universal Genève Brooch Watch',
+      "Gucci Tiger's Eye Sautoir Timepiece Necklace",
+      'Piaget Yellow Gold Lapis Pendant Necklace Watch, 1960s',
+      "Omega 'Secret' Bracelet Watch by Gilbert Albert",
+      "Patek Philippe Ellipse 'Chevron Bracelet'",
+    ]) {
+      expect(looksLikeAccessory(t), t).toBe(false);
+    }
+  });
+
+  it('is not fooled by a model name inside a book title', () => {
+    // A Rolex reference book names half the catalogue, so model names must not
+    // rescue something the hard-object list has already caught.
+    expect(looksLikeAccessory('Mondani Books - Rolex Daytona Self-Winding')).toBe(true);
+  });
+
   it('lets the title settle which stone it is', () => {
     // Dealer copy offering other stones must not override a plain title.
     const tags = tagsFor(
@@ -123,5 +155,27 @@ describe('accessories and catalogue copy', () => {
     );
     expect(tags).toContain('malachite');
     expect(tags).toContain('stone-dial');
+  });
+});
+
+describe('expanded taxonomy', () => {
+  it('covers complications, not just materials', () => {
+    expect(tag('Cartier jump hour direct read 1970s')).toContain('jump-hour');
+    expect(tag('Jaeger-LeCoultre Memovox alarm')).toContain('alarm');
+    expect(tag('Vintage doctors watch with pulsation scale')).toContain('doctors-watch');
+    expect(tag('Rolex with Tiffany & Co. dial')).toContain('double-signed');
+  });
+
+  it('covers rarer stones and finishes', () => {
+    expect(tag('Piaget tiger iron dial')).toContain('tiger-iron');
+    expect(tag('Omega chrysocolla dial')).toContain('chrysocolla');
+    expect(tag('Bulgari tubogas bracelet')).toContain('tubogas');
+    expect(tag('Vacheron cloisonné enamel map dial')).toContain('cloisonne');
+  });
+
+  it('treats the rarest new finds as grails', () => {
+    expect(isGrail(tag('Patek Philippe mystery dial'))).toBe(true);
+    expect(isGrail(tag('Rolex prototype never released'))).toBe(true);
+    expect(isGrail(tag('Piaget pietersite dial'))).toBe(true);
   });
 });
