@@ -6,7 +6,9 @@ import { Hunt as HuntTab } from './hunt.tsx';
 import { Rail } from './rail.tsx';
 import { apply, fromQuery, toQuery, type Filters } from './filters.ts';
 import { loadPins, togglePin } from './pins.ts';
+import { parse } from './parse.ts';
 import type { Hunt, Listing, SourceMeta, Taxonomy } from './types.ts';
+import vocab from 'virtual:vocab';
 
 const base = import.meta.env.BASE_URL;
 const json = async <T,>(file: string, fallback: T): Promise<T> => {
@@ -87,14 +89,22 @@ export function App() {
     return mini;
   }, [corpus]);
 
+  // The search box is parsed into filter-shaped state (tags, brand, price,
+  // era, case, grail, oddity) without ever writing back into `filters` -
+  // the rail keeps showing only what the user explicitly checked. What's
+  // left over after parsing (e.g. "gold dress dial") still goes to the text
+  // index, same as the whole query did before.
+  const parsed = useMemo(() => parse(filters.q, vocab), [filters.q]);
+  const effectiveFilters = useMemo<Filters>(() => ({ ...filters, ...parsed.patch }), [filters, parsed]);
+
   const matchedIds = useMemo(() => {
-    if (!index || !filters.q.trim()) return null;
-    return new Set(index.search(filters.q).map((r) => r.id as string));
-  }, [index, filters.q]);
+    if (!index || !parsed.leftover.trim()) return null;
+    return new Set(index.search(parsed.leftover).map((r) => r.id as string));
+  }, [index, parsed.leftover]);
 
   const results = useMemo(
-    () => (corpus ? apply(corpus, filters, matchedIds, pins) : []),
-    [corpus, filters, matchedIds, pins],
+    () => (corpus ? apply(corpus, effectiveFilters, matchedIds, pins) : []),
+    [corpus, effectiveFilters, matchedIds, pins],
   );
 
   const freshCount = useMemo(

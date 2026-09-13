@@ -48,7 +48,9 @@ export function Rail({
   }, [taxonomy, counts]);
 
   const active =
-    filters.tags.length + filters.sources.length + filters.eras.length > 0 ||
+    filters.tags.length + filters.sources.length + filters.eras.length +
+      filters.anyTags.length + filters.brands.length >
+      0 ||
     filters.grailsOnly ||
     filters.pinnedOnly ||
     filters.includeSold ||
@@ -183,7 +185,7 @@ export function Rail({
           class="clear"
           onClick={() =>
             set({
-              tags: [], sources: [], eras: [], grailsOnly: false, pinnedOnly: false,
+              tags: [], anyTags: [], brands: [], sources: [], eras: [], grailsOnly: false, pinnedOnly: false,
               includeSold: false, minOddity: 0,
               minPrice: null, maxPrice: null, minCase: null, maxCase: null,
             })

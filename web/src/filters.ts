@@ -5,6 +5,10 @@ export type Sort = 'new' | 'oddity' | 'price-asc' | 'price-desc' | 'drop' | 'sta
 export type Filters = {
   q: string;
   tags: string[];
+  /** Groups of tags OR'd within each group, groups AND'd together. Independent of `tags`. */
+  anyTags: string[][];
+  /** Canonical brand strings (e.g. 'Piaget'), matched case-insensitively against `l.brand`. */
+  brands: string[];
   sources: string[];
   eras: string[];
   minPrice: number | null;
@@ -19,7 +23,7 @@ export type Filters = {
 };
 
 export const EMPTY: Filters = {
-  q: '', tags: [], sources: [], eras: [], minPrice: null, maxPrice: null,
+  q: '', tags: [], anyTags: [], brands: [], sources: [], eras: [], minPrice: null, maxPrice: null,
   minCase: null, maxCase: null, minOddity: 0, grailsOnly: false, pinnedOnly: false, includeSold: false, sort: 'oddity',
 };
 
@@ -28,6 +32,8 @@ export function toQuery(f: Filters): string {
   const p = new URLSearchParams();
   if (f.q) p.set('q', f.q);
   if (f.tags.length) p.set('tags', f.tags.join(','));
+  if (f.anyTags.length) p.set('any', f.anyTags.map((g) => g.join('|')).join(','));
+  if (f.brands.length) p.set('brand', f.brands.join(','));
   if (f.sources.length) p.set('src', f.sources.join(','));
   if (f.eras.length) p.set('era', f.eras.join(','));
   if (f.minPrice !== null) p.set('min', String(f.minPrice));
@@ -50,6 +56,10 @@ export function fromQuery(search: string): Filters {
     ...EMPTY,
     q: p.get('q') ?? '',
     tags: list('tags'),
+    anyTags: p.get('any')
+      ? p.get('any')!.split(',').filter(Boolean).map((g) => g.split('|').filter(Boolean))
+      : [],
+    brands: list('brand'),
     sources: list('src'),
     eras: list('era'),
     minPrice: num('min'), maxPrice: num('max'),
@@ -87,6 +97,15 @@ export function apply(
     if (f.grailsOnly && !l.grail) return false;
     // Every selected tag must be present - filters narrow, they don't widen.
     if (f.tags.length && !f.tags.every((t) => l.tags.includes(t))) return false;
+    // Each anyTags group must have at least one of its tags present; groups AND together.
+    if (f.anyTags.length && !f.anyTags.every((group) => group.some((t) => l.tags.includes(t))))
+      return false;
+    // An unbranded listing fails a brand filter rather than sneaking through.
+    if (
+      f.brands.length &&
+      (!l.brand || !f.brands.some((b) => b.toLowerCase() === l.brand!.toLowerCase()))
+    )
+      return false;
     if (f.sources.length && !f.sources.includes(l.source)) return false;
     if (f.eras.length && (!l.era || !f.eras.includes(l.era))) return false;
     if (l.oddity < f.minOddity) return false;
