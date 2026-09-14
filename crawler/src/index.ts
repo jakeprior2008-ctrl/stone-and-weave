@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { parse } from 'yaml';
 import { fetchEbay } from './adapters/ebay.ts';
+import { fetchInstagram } from './adapters/instagram.ts';
 import { fetchJsonLd } from './adapters/jsonld.ts';
 import { fetchShopify } from './adapters/shopify.ts';
 import { findMatches, loadRules, pushNtfy } from './alerts.ts';
@@ -81,6 +82,24 @@ async function main() {
       }
     } catch (err) {
       console.log(`  ✗ eBay — ${err instanceof Error ? err.message : err}`);
+    }
+
+    try {
+      const instagramDealer: Dealer = {
+        id: 'instagram', name: 'Instagram', url: 'https://www.instagram.com', adapter: 'shopify',
+      };
+      const raw = await fetchInstagram();
+      if (raw.length > 0) {
+        for (const r of raw) fresh.push(normalise(r, instagramDealer, now));
+        succeeded.add('instagram');
+        console.log(`  ✓ ${'Instagram'.padEnd(26)} ${String(raw.length).padStart(4)} listings`);
+        meta.push({
+          id: 'instagram', name: 'Instagram', url: instagramDealer.url, adapter: 'instagram',
+          lastRun: now, lastSuccess: now, count: raw.length, ok: true, error: null,
+        });
+      }
+    } catch (err) {
+      console.log(`  ✗ Instagram — ${err instanceof Error ? err.message : err}`);
     }
   }
 

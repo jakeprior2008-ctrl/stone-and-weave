@@ -84,15 +84,39 @@ YAML, so tuning it needs no code change.
 | Squarespace / Wix dealers | sitemap → schema.org JSON-LD | No bulk feed, so one page at a time |
 | Subdial (13,638 listings) | sitemap, **pre-filtered on slugs** | Tag-matching the URL slug first cut it to 277 fetches — 98% saved |
 | eBay | Browse API | Optional; skips cleanly with no credentials |
-| Chrono24, Instagram | **link-out only** | No usable API and they block crawlers |
+| Instagram | Graph API Business Discovery | Optional; skips cleanly with no credentials |
+| Chrono24 | **link-out only** | No usable API and it blocks crawlers |
 
 Every dealer was probed live before being added, and the ones that failed stay
 listed in [`sources/dealers.yml`](sources/dealers.yml) under `excluded:` *with
 the reason*, so nobody wastes an afternoon re-probing them.
 
-Chrono24 and Instagram are deliberately **not** scraped. Instead there's a Hunt
-tab of pre-built saved searches and a curated account directory — one click
-away, honest about the boundary.
+Chrono24 is deliberately **not** scraped — there's a Hunt tab of pre-built
+saved searches instead, one click away, honest about the boundary. Instagram
+can't be scraped either (a profile page is a JS shell behind a login), but
+Meta's Graph API offers one legitimate, narrow route in: **Business
+Discovery** lets an Instagram Business/Creator account read another public
+Business/Creator account's recent media by username. `crawler/src/adapters/
+instagram.ts` uses exactly that, for a short seed list of accounts that have
+no shop site of their own ([`sources/instagram.yml`](sources/instagram.yml)) —
+everything else still lives in the Hunt tab's account directory.
+
+It's off by default and stays off until two repo secrets exist:
+
+- `IG_TOKEN` — a Meta **System User** access token, not a normal user token.
+  A user token expires in ~60 days and would silently kill the six-hourly
+  crawl's Instagram source the day it lapsed; a System User token doesn't
+  expire. Create one from a Meta Business Suite → Business Settings → System
+  Users, assign it the Instagram account with `instagram_basic` permission,
+  and generate its token from there.
+- `IG_USER_ID` — the numeric Instagram User ID of *your* Business/Creator
+  account (the one whose token you generated), not of any account being read.
+
+Both secrets missing (the default for every fork) means `fetchInstagram()`
+returns before making a request — no crawl behaviour changes. The accounts
+being read must themselves be Business or Creator accounts; a personal
+account returns no `business_discovery` field and is skipped with a log line,
+not an error.
 
 ## Architecture
 
@@ -168,7 +192,8 @@ rules and rarity, [`watchlist.yml`](watchlist.yml) for what reaches your phone,
 
 Set `NTFY_TOPIC` as a repo secret to get alerts pushed via [ntfy](https://ntfy.sh);
 without it they print to the workflow log. `EBAY_CLIENT_ID` / `EBAY_CLIENT_SECRET`
-turn on eBay.
+turn on eBay; `IG_TOKEN` / `IG_USER_ID` turn on Instagram — see [Sources](#sources)
+for how to get a token that doesn't expire.
 
 ## Stack
 
