@@ -152,6 +152,17 @@ dealers:
     region: SG
     priority: 4
 
+  - id: c4c
+    name: C4C Vintage Watches
+    url: https://c4cjapan.com
+    adapter: shopify
+    currency: JPY
+    region: JP
+    instagram: c4c_vintage_watches
+    priority: 2
+    maxProducts: 500  # full catalogue is ~440
+    notes: Osaka/Tokyo neo-vintage specialist, 1960s-2000s. IG-only per hunt.yml, but the store is a real Shopify feed.
+
   # -------------------------------------------------------------------- jsonld
   - id: subdial
     name: Subdial
@@ -181,3 +192,5 @@ excluded:
   - { url: https://vintagegoldwatches.com, reason: 'HTTP 403, anti-bot' }
   - { url: https://www.timepiecetrading.co.uk, reason: 'no product feed' }
   - { url: https://www.windvintage.com, reason: 'no products.json' }
+  - { url: https://theoandharris.com, reason: 'anti-bot challenge page (sgcaptcha) on every path - link-out only' }
+  - { url: https://vwmilano.com, reason: 'no SSL certificate configured for the domain, HTTP 503 - site unreachable' }
