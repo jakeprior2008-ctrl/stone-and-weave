@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { KNOWN_BRANDS } from './brands.ts';
+import { BRAND_DISPLAY, CANONICAL_BRANDS, KNOWN_BRANDS } from './brands.ts';
 import { isGrail, oddityScore, searchableText, tagsFor } from './enrich.ts';
 import type { Dealer, Listing, RawListing } from './types.ts';
 
@@ -18,14 +18,50 @@ export function toGBP(amount: number, currency: string): number | null {
   return rate ? Math.round(amount * rate) : null;
 }
 
-export function detectBrand(text: string, vendor?: string | null): string | null {
+const VENDOR_PLACEHOLDERS = new Set(['default title', 'n/a', '-', 'unknown']);
+
+// Words that add nothing when comparing a Shopify vendor string against the
+// dealer's own name - "Vintage Watch Specialist" the vendor vs "Vintage Watch
+// Specialist Ltd" the dealer should still be recognised as the same name.
+const NAME_FILLER = /\b(watches?|vintage|london|co|ltd)\b/g;
+
+const normaliseName = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(NAME_FILLER, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+/** True when a Shopify `vendor` string is really just the dealer's own name. */
+function vendorNamesDealer(vendor: string, dealerName: string): boolean {
+  const v = normaliseName(vendor);
+  const d = normaliseName(dealerName);
+  if (!v || !d) return false;
+  return v === d || d.includes(v) || v.includes(d);
+}
+
+export function detectBrand(
+  text: string,
+  vendor?: string | null,
+  dealerName?: string,
+): string | null {
   const haystack = text.toLowerCase();
   // Longest match first so "grand seiko" never resolves to "seiko".
   const hit = [...KNOWN_BRANDS]
     .sort((a, b) => b.length - a.length)
     .find((b) => haystack.includes(b));
-  if (hit) return hit.replace(/\b\w/g, (c) => c.toUpperCase());
-  return vendor?.trim() || null;
+  if (hit) return BRAND_DISPLAY[hit] ?? hit.replace(/\b\w/g, (c) => c.toUpperCase());
+
+  const v = vendor?.trim();
+  if (!v) return null;
+  if (VENDOR_PLACEHOLDERS.has(v.toLowerCase())) return null;
+  if (dealerName && vendorNamesDealer(v, dealerName)) return null;
+  return v;
+}
+
+export function isCanonicalBrand(b: string | null): boolean {
+  return b !== null && CANONICAL_BRANDS.includes(b);
 }
 
 export function detectReference(text: string): string | null {
@@ -69,7 +105,7 @@ export function fingerprint(brand: string | null, ref: string | null, title: str
 export function normalise(raw: RawListing, dealer: Dealer, now: string): Listing {
   const text = searchableText(raw.title, raw.description ?? '', raw.url);
   const tags = tagsFor(text, raw.title);
-  const brand = detectBrand(text, raw.vendor);
+  const brand = detectBrand(text, raw.vendor, dealer.name);
   const price = raw.price ?? null;
 
   return {

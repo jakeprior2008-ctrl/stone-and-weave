@@ -16,6 +16,40 @@ export const KNOWN_BRANDS = [
 ];
 
 /**
+ * Lower-case KNOWN_BRANDS entry -> correct display name, for every entry
+ * where naive `\b\w/g` title-casing gets it wrong (acronyms, umlauts,
+ * hyphenation, "&" houses, multi-word marques normalised to one form, etc).
+ * Anything not listed here is fine with plain title-casing.
+ */
+export const BRAND_DISPLAY: Record<string, string> = {
+  iwc: 'IWC',
+  'a. lange': 'A. Lange & Söhne',
+  'jaeger-lecoultre': 'Jaeger-LeCoultre',
+  'jaeger lecoultre': 'Jaeger-LeCoultre',
+  'universal geneve': 'Universal Genève',
+  'tag heuer': 'TAG Heuer',
+  'girard-perregaux': 'Girard-Perregaux',
+  'van cleef': 'Van Cleef & Arpels',
+  glashutte: 'Glashütte Original',
+  'favre-leuba': 'Favre-Leuba',
+  baume: 'Baume & Mercier',
+  lip: 'LIP',
+  nivada: 'Nivada Grenchen',
+  chronoswiss: 'Chronoswiss',
+  'grand seiko': 'Grand Seiko',
+  'patek philippe': 'Patek Philippe',
+  'audemars piguet': 'Audemars Piguet',
+  'vacheron constantin': 'Vacheron Constantin',
+};
+
+const titleCase = (s: string) => s.replace(/\b\w/g, (c) => c.toUpperCase());
+
+/** The curated display-name list the UI trusts as real brands. */
+export const CANONICAL_BRANDS: string[] = [
+  ...new Set(KNOWN_BRANDS.map((b) => BRAND_DISPLAY[b] ?? titleCase(b))),
+].sort();
+
+/**
  * Model name -> canonical brand, title-cased the same way detectBrand()
  * would produce it. Used by the site's query parser so "tank" or "reverso"
  * can resolve to a brand filter without a user typing the maker's name.

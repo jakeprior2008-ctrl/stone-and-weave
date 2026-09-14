@@ -13,6 +13,24 @@ describe('field extraction', () => {
     expect(detectBrand('Unsigned cocktail watch', null)).toBeNull();
   });
 
+  it('gives known brands their correct display name, not naive title-case', () => {
+    expect(detectBrand('IWC Mark XI', null)).toBe('IWC');
+    expect(detectBrand('Jaeger-LeCoultre Reverso', null)).toBe('Jaeger-LeCoultre');
+    expect(detectBrand('a. lange & sohne 1815', null)).toBe('A. Lange & Söhne');
+  });
+
+  it('rejects a vendor that just names the dealer, but keeps an unrelated one', () => {
+    expect(detectBrand('Unsigned cocktail watch', 'Analog:Shift', 'Analog Shift')).toBeNull();
+    expect(detectBrand('Unsigned cocktail watch', 'Doble', 'Analog Shift')).toBe('Doble');
+  });
+
+  it('rejects an empty or placeholder vendor', () => {
+    expect(detectBrand('Unsigned cocktail watch', 'Default Title')).toBeNull();
+    expect(detectBrand('Unsigned cocktail watch', 'N/A')).toBeNull();
+    expect(detectBrand('Unsigned cocktail watch', '-')).toBeNull();
+    expect(detectBrand('Unsigned cocktail watch', 'unknown')).toBeNull();
+  });
+
   it('pulls references and case sizes', () => {
     expect(detectReference('Rolex Datejust ref. 69178 yellow gold')).toBe('69178');
     expect(detectCaseSize('Rolex 26mm Datejust')).toBe(26);
