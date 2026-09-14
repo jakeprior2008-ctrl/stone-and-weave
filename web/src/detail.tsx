@@ -106,7 +106,7 @@ export function Detail({
         )}
 
         <a class="cta" href={listing.url} target="_blank" rel="noopener noreferrer">
-          View at {listing.sourceName} ↗
+          {listing.source === 'spotted' ? 'View the post' : `View at ${listing.sourceName}`} ↗
         </a>
 
         {similar.length > 0 && (

@@ -1,0 +1,96 @@
+name: Spotted
+
+on:
+  issues:
+    types: [opened, edited]
+
+# One issue at a time - two "spotted" issues edited close together must not
+# race each other's commit to sources/spotted.yml.
+concurrency:
+  group: spotted
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  spotted:
+    if: contains(github.event.issue.labels.*.name, 'spotted')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Parse the issue into sources/spotted.yml
+        id: parse
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: pnpm exec tsx scripts/parse-spotted-issue.ts
+
+      - name: Comment on the issue
+        if: always() && steps.parse.outputs.comment != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body: process.env.SPOTTED_COMMENT,
+            });
+        env:
+          SPOTTED_COMMENT: ${{ steps.parse.outputs.comment }}
+
+      - name: Commit sources/spotted.yml
+        if: steps.parse.outputs.valid == 'true'
+        run: |
+          git config user.name  "stone-and-weave[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sources/spotted.yml
+          if git diff --staged --quiet; then
+            echo "No change."
+            exit 0
+          fi
+          git commit -m "sources: spotted ${{ steps.parse.outputs.shortcode }} (#${{ github.event.issue.number }})"
+
+          # Same rejection-retry as crawl.yml's "Commit data" step: this file
+          # is generated from the issue, so on a race the remote tip wins and
+          # our commit is simply replayed on top of it.
+          for i in 1 2 3 4; do
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              exit 0
+            fi
+            git fetch origin "${GITHUB_REF_NAME}" || true
+            git reset --soft "origin/${GITHUB_REF_NAME}"
+            git add sources/spotted.yml
+            git diff --staged --quiet && exit 0
+            git commit -m "sources: spotted ${{ steps.parse.outputs.shortcode }} (#${{ github.event.issue.number }})"
+            sleep $((2 ** i))
+          done
+          exit 1
+
+      - name: Close the issue
+        if: steps.parse.outputs.valid == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              state: 'closed',
+              state_reason: 'completed',
+            });

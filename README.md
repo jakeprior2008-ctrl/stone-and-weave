@@ -118,6 +118,26 @@ being read must themselves be Business or Creator accounts; a personal
 account returns no `business_discovery` field and is skipped with a log line,
 not an error.
 
+### Spotted on Instagram
+
+Instagram's profile pages are a JS shell behind auth — nothing to scrape, and
+no API worth a token for a handful of dealers. But some of the best dealers
+*only* exist there, so when one of them posts something worth having, it goes
+into the dataset by hand instead: open the repo's **Spotted on Instagram**
+issue template from a phone, paste the post link and caption, and file it.
+
+A GitHub Action reads the issue, checks the link is really an Instagram post
+or reel, and appends it to [`sources/spotted.yml`](sources/spotted.yml) keyed
+by the post's shortcode — so editing the issue later updates that entry
+instead of creating a second one. It comments back on the issue to confirm
+and closes it. The next crawl reads the caption through the same
+tag/price/sold parser every dealer caption goes through, and folds it in via
+the same `normalise()` as everything else — same tagging, same oddity score,
+no separate code path to trust. No images: Instagram's CDN links are signed
+and expire, so a spotted listing is deliberately bare and links straight back
+to the post. No credentials, no token, nothing to break — it's a form and a
+YAML file.
+
 ## Architecture
 
 ```

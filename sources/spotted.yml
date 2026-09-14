@@ -1,0 +1,9 @@
+# Watches spotted on Instagram by hand — the one place this repo cannot crawl.
+# Filed via a GitHub Issue Form (.github/ISSUE_TEMPLATE/spotted.yml) and
+# appended here by .github/workflows/spotted.yml, keyed by the post's
+# shortcode so editing an issue updates its entry rather than duplicating it.
+#
+# Machine-appended. Do not hand-edit unless you're fixing a mistake the
+# workflow made — an issue re-edit will still overwrite whatever's here.
+
+spotted: []

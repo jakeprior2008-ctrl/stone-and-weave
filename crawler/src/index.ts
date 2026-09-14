@@ -7,6 +7,7 @@ import { fetchShopify } from './adapters/shopify.ts';
 import { findMatches, loadRules, pushNtfy } from './alerts.ts';
 import { ALL_TAGS, GROUPS, looksLikeAccessory } from './enrich.ts';
 import { normalise } from './normalise.ts';
+import { SPOTTED_DEALER, loadSpotted } from './spotted.ts';
 import { merge, pruneArchive, readJson, writeJson } from './store.ts';
 import type { Dealer, Listing, SourceMeta } from './types.ts';
 
@@ -61,6 +62,23 @@ async function main() {
         id: dealer.id, name: dealer.name, url: dealer.url, adapter: dealer.adapter,
         lastRun: now, lastSuccess: prevMeta.find((m) => m.id === dealer.id)?.lastSuccess ?? null,
         count: 0, ok: false, error: message,
+      });
+    }
+  }
+
+  if (!ONLY) {
+    // Instagram is JS-behind-auth and cannot be crawled, so these come from
+    // the owner's own eyes via a GitHub Issue Form instead - see
+    // .github/workflows/spotted.yml. Always "succeeds": a hand-filed find
+    // must never be aged out by an absent or empty spotted.yml.
+    const spotted = loadSpotted(now);
+    if (spotted.length > 0) {
+      fresh.push(...spotted);
+      succeeded.add(SPOTTED_DEALER.id);
+      console.log(`  ✓ ${SPOTTED_DEALER.name.padEnd(26)} ${String(spotted.length).padStart(4)} listings`);
+      meta.push({
+        id: SPOTTED_DEALER.id, name: SPOTTED_DEALER.name, url: SPOTTED_DEALER.url, adapter: 'spotted',
+        lastRun: now, lastSuccess: now, count: spotted.length, ok: true, error: null,
       });
     }
   }

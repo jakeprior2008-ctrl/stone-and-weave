@@ -1,0 +1,51 @@
+name: Spotted on Instagram
+description: Found a watch on Instagram that belongs in the grid.
+title: "Spotted: "
+labels: ["spotted"]
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        Instagram can't be crawled, so this is the way in: paste the post link
+        and whatever caption came with it, and the next crawl will fold it in
+        alongside everything else.
+  - type: input
+    id: permalink
+    attributes:
+      label: Post link
+      description: The Instagram post or reel URL (long-press → Copy Link on the ⋯ menu).
+      placeholder: "https://www.instagram.com/p/ABC123xyz/"
+    validations:
+      required: true
+  - type: textarea
+    id: caption
+    attributes:
+      label: Caption
+      description: Paste the full caption if you can — price, condition and tags all get read from it.
+      placeholder: "Rare Omega Seamaster 1965, stunning original dial. £4,500. DM to reserve."
+    validations:
+      required: false
+  - type: input
+    id: dealer
+    attributes:
+      label: Dealer
+      description: Who's selling it. Leave blank to use the handle from the link.
+      placeholder: doblevintagewatches
+    validations:
+      required: false
+  - type: input
+    id: price
+    attributes:
+      label: Price
+      description: Only needed if it's not already in the caption. Free text is fine.
+      placeholder: "£4,500 or DM"
+    validations:
+      required: false
+  - type: textarea
+    id: note
+    attributes:
+      label: Why it's interesting
+      description: A line for yourself — what made you stop scrolling.
+      placeholder: "Tropical dial, bamboo bracelet, exactly the stone-dial thing we chase."
+    validations:
+      required: false
