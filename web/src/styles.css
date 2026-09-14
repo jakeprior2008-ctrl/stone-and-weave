@@ -126,6 +126,13 @@ main { flex: 1; min-width: 0; }
 }
 .clear:hover { color: var(--ink); border-color: var(--accent); }
 
+.show-all {
+  display: block; width: 100%; background: none; border: none;
+  color: var(--dim); font-size: 11px; text-align: left; padding: 4px 0;
+  cursor: pointer;
+}
+.show-all:hover { color: var(--accent); }
+
 .rail-toggle { display: none; }
 
 /* ------------------------------------------------------------------ bar */

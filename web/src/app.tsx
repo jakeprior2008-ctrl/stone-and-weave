@@ -253,6 +253,7 @@ export function App() {
             listings={corpus ?? []}
             meta={meta}
             pinCount={pins.size}
+            canonicalBrands={vocab.canonicalBrands}
           />
 
           <main>

@@ -36,6 +36,16 @@ describe('buildVocab', () => {
     expect(vocab.brands.length).toBeGreaterThanOrEqual(40);
   });
 
+  it('carries a curated, deduplicated, sorted canonical brand list', () => {
+    const vocab = buildVocab();
+    expect(vocab.canonicalBrands).toContain('IWC');
+    expect(vocab.canonicalBrands).toContain('Jaeger-LeCoultre');
+    expect(vocab.canonicalBrands).not.toContain('Iwc');
+    const sorted = [...vocab.canonicalBrands].sort();
+    expect(vocab.canonicalBrands).toEqual(sorted);
+    expect(new Set(vocab.canonicalBrands).size).toBe(vocab.canonicalBrands.length);
+  });
+
   it('resolves models to their canonical brand', () => {
     const vocab = buildVocab();
     expect(vocab.models['tank']).toBe('Cartier');

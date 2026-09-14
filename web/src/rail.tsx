@@ -1,6 +1,8 @@
-import { useMemo } from 'preact/hooks';
+import { useMemo, useState } from 'preact/hooks';
 import type { Filters } from './filters.ts';
 import type { Listing, SourceMeta, Taxonomy } from './types.ts';
+
+const BRAND_SHOW_LIMIT = 12;
 
 const toggle = (list: string[], v: string) =>
   list.includes(v) ? list.filter((x) => x !== v) : [...list, v];
@@ -13,6 +15,7 @@ export function Rail({
   listings,
   meta,
   pinCount,
+  canonicalBrands,
 }: {
   open: boolean;
   filters: Filters;
@@ -21,13 +24,28 @@ export function Rail({
   listings: Listing[];
   meta: SourceMeta[];
   pinCount: number;
+  canonicalBrands: string[];
 }) {
+  const [showAllBrands, setShowAllBrands] = useState(false);
   // Counts make the rail honest: you can see there are 12 malachites before clicking.
   const counts = useMemo(() => {
     const c = new Map<string, number>();
     for (const l of listings) for (const t of l.tags) c.set(t, (c.get(t) ?? 0) + 1);
     return c;
   }, [listings]);
+
+  // Only brands in the curated list ever show, so a strap maker or a
+  // dealer name picked up by the vendor fallback can never appear here.
+  const brandRows = useMemo(() => {
+    const canonical = new Set(canonicalBrands);
+    const c = new Map<string, number>();
+    for (const l of listings) {
+      if (l.brand && canonical.has(l.brand)) c.set(l.brand, (c.get(l.brand) ?? 0) + 1);
+    }
+    return [...c.entries()]
+      .filter(([, n]) => n > 0)
+      .sort((a, b) => b[1] - a[1]);
+  }, [listings, canonicalBrands]);
 
   const eras = useMemo(() => {
     const set = new Set<string>();
@@ -161,6 +179,32 @@ export function Rail({
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      {brandRows.length > 0 && (
+        <section>
+          <h4>Brand</h4>
+          <ul class="tags">
+            {(showAllBrands ? brandRows : brandRows.slice(0, BRAND_SHOW_LIMIT)).map(([brand, n]) => (
+              <li key={brand}>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={filters.brands.includes(brand)}
+                    onChange={() => set({ brands: toggle(filters.brands, brand) })}
+                  />
+                  <span>{brand}</span>
+                  <em>{n}</em>
+                </label>
+              </li>
+            ))}
+          </ul>
+          {brandRows.length > BRAND_SHOW_LIMIT && (
+            <button class="show-all" onClick={() => setShowAllBrands((v) => !v)}>
+              {showAllBrands ? 'Show fewer' : `Show all (${brandRows.length})`}
+            </button>
+          )}
         </section>
       )}
 

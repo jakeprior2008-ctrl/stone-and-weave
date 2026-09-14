@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
 
-import { KNOWN_BRANDS, MODELS } from '../crawler/src/brands.ts';
+import { CANONICAL_BRANDS, KNOWN_BRANDS, MODELS } from '../crawler/src/brands.ts';
 
 type RuleSpec = {
   tag: string;
@@ -31,6 +31,8 @@ export type Vocab = {
   tags: { tag: string; label: string; group: string; synonyms: string[] }[];
   phrases: Record<string, string[]>;
   brands: string[];
+  /** Curated display-name brands only - the rail's brand facet trusts this list. */
+  canonicalBrands: string[];
   models: Record<string, string>;
 };
 
@@ -84,6 +86,7 @@ export function buildVocab(): Vocab {
     })),
     phrases,
     brands: [...KNOWN_BRANDS],
+    canonicalBrands: [...CANONICAL_BRANDS],
     models: { ...MODELS },
   };
 }
