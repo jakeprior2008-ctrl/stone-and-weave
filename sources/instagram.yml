@@ -1,0 +1,51 @@
+# Accounts polled through Meta's Graph API Business Discovery endpoint - see
+# crawler/src/adapters/instagram.ts for how, and why this is the only route
+# that works (a profile page itself is an unscrapable JS shell).
+#
+# Completely inert unless both IG_TOKEN and IG_USER_ID repo secrets are set:
+# with either missing, fetchInstagram() returns [] before making a request,
+# so an unconfigured or unproven checkout behaves exactly as it did before
+# this file existed. The six-hourly crawl must never depend on this working.
+#
+# Seeded with the five Hunt-tab accounts that have no other source in the
+# dataset (no shop site, no Shopify feed) - see sources/hunt.yml and the
+# `excluded` list in sources/dealers.yml for why each one is IG-only.
+# Accounts already crawled through their own shop (e.g. goldammervintage,
+# doblevintagewatches) are deliberately left out here to avoid duplicate
+# inventory.
+#
+# Each entry:
+#   handle    - Instagram username, must be a Business or Creator account
+#               (a personal account returns no business_discovery and is
+#               silently skipped).
+#   name      - display name for meta.json / the UI source list.
+#   currency  - optional; their likely selling currency. Only worth setting
+#               when it's already in FX_TO_GBP (crawler/src/normalise.ts),
+#               otherwise a real price still gets read from the caption but
+#               reported as unconvertible.
+#   note      - optional context, same style as hunt.yml.
+
+accounts:
+  - handle: dadandson.watches
+    name: Dad & Son
+    currency: HKD
+    note: "Hong Kong. Gallery site with no online store - Instagram is the shop."
+
+  - handle: cyclopewatches
+    name: Cyclope
+    currency: EUR
+    note: "Paris. Rare vintage, no open feed - IG is the shop."
+
+  - handle: wristandwatchco
+    name: Wrist and Watch Co
+    note: "Rare collector pieces. Site returns an HTTP 202 challenge page."
+
+  - handle: theo_and_harris
+    name: Theo & Harris
+    currency: USD
+    note: "Site blocks crawlers behind an anti-bot challenge on every path."
+
+  - handle: vintage_watches_milano
+    name: Vintage Watches Milano
+    currency: EUR
+    note: "Milan. Site has no working SSL certificate configured."
